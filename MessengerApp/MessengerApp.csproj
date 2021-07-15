@@ -27,4 +27,8 @@
     <ProjectReference Include="..\MessengerApp.Core\MessengerApp.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="logs" />
+  </ItemGroup>
+
 </Project>

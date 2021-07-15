@@ -6,9 +6,9 @@ namespace MessengerApp
 {
     public class BearerAuthorizeAttribute : AuthorizeAttribute
     {
-        public BearerAuthorizeAttribute(Role roles) : this()
+        public BearerAuthorizeAttribute(Roles roleses) : this()
         {
-            Roles = roles.ToString();
+            Roles = roleses.ToString();
         }
 
         public BearerAuthorizeAttribute()

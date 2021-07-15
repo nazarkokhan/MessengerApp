@@ -48,10 +48,6 @@ namespace MessengerApp
                 .AddHttpContextAccessor()
                 .AddScoped<DataBaseInitializer>()
                 .AddScoped<IUnitOfWork, EfUnitOfWork>()
-                .AddTransient<IAuthorService, AuthorService>()
-                .AddTransient<IBookService, BookService>()
-                .AddScoped<IAuthorRepository, AuthorRepository>()
-                .AddScoped<IBookRepository, BookRepository>()
                 .AddScoped<IUserRepository, UserRepository>()
                 .AddScoped<IAccountService, AccountService>()
                 .AddScoped<IAdminService, AdminService>()
@@ -72,7 +68,10 @@ namespace MessengerApp
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
         }
     }
 }

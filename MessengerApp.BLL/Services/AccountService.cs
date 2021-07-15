@@ -17,7 +17,6 @@ using MessengerApp.DAL.Repository.Abstraction;
 using MessengerApp.BLL.Services.Abstraction;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
-using Role = MessengerApp.Core.ResultConstants.AuthorizationConstants.Role;
 
 namespace MessengerApp.BLL.Services
 {
@@ -90,7 +89,7 @@ namespace MessengerApp.BLL.Services
                 if (!tokenIsValid.Succeeded)
                     return Result.CreateFailed(AccountResultConstants.InvalidRegistrationToken);
 
-                await _userManager.AddToRoleAsync(userEntity, Role.User.ToString());
+                await _userManager.AddToRoleAsync(userEntity, Roles.User.ToString());
 
                 await _emailService.SendAsync(
                     to: userEntity.Email,

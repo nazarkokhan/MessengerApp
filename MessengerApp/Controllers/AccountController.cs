@@ -31,17 +31,17 @@ namespace MessengerApp.Controllers
         public async Task<IActionResult> LogInAsync(LogInUserDto userDto) 
             => (await _accountService.GetAccessTokenAsync(userDto)).ToActionResult();
 
-        [BearerAuthorize(Role.Admin | Role.User)]
+        [BearerAuthorize(Roles.Admin | Roles.User)]
         [HttpGet("profile")]
         public async Task<IActionResult> GetProfile() 
             => (await _accountService.GetProfile(User.GetUserId())).ToActionResult();
 
-        [BearerAuthorize(Role.Admin | Role.User)]
+        [BearerAuthorize(Roles.Admin | Roles.User)]
         [HttpPut("reset-email/email-token")]
         public async Task<IActionResult> SendEmailResetTokenAsync(ResetEmailDto resetEmailDto) 
             => (await _accountService.SendEmailResetTokenAsync(resetEmailDto, User.GetUserId())).ToActionResult();
 
-        [BearerAuthorize(Role.Admin | Role.User)]
+        [BearerAuthorize(Roles.Admin | Roles.User)]
         [HttpGet("reset-email")]
         public async Task<IActionResult> ResetEmailAsync(string token, string newEmail) 
             => (await _accountService.ResetEmailAsync(token, newEmail, User.GetUserId())).ToActionResult();

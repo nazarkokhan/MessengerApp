@@ -22,7 +22,6 @@ using MessengerApp.DAL.Repository.Abstraction;
 using Microsoft.AspNetCore.Identity;
 using Moq;
 using Xunit;
-using Role = MessengerApp.Core.ResultConstants.AuthorizationConstants.Role;
 
 namespace MessengerApp.BLL.Tests
 {
@@ -174,7 +173,7 @@ namespace MessengerApp.BLL.Tests
             ).Returns(Task.FromResult(IdentityResult.Success));
 
             _userManagerMock.Setup(userManager => userManager
-                .AddToRoleAsync(userEntity, Role.User.ToString())
+                .AddToRoleAsync(userEntity, Roles.User.ToString())
             ).Returns(Task.FromResult(IdentityResult.Success));
 
             _emailServiceMock.Setup(emService => emService
@@ -268,7 +267,7 @@ namespace MessengerApp.BLL.Tests
                 .CheckPasswordAsync(It.IsAny<User>(), It.IsAny<string>())
             ).Returns(Task.FromResult(true));
 
-            IList<string> roles = new List<string> {$"{Role.User.ToString()}"};
+            IList<string> roles = new List<string> {$"{Roles.User.ToString()}"};
 
             _userManagerMock.Setup(userManager => userManager
                 .GetRolesAsync(userEntity)

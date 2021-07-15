@@ -2,13 +2,13 @@
 using System.Threading.Tasks;
 using MessengerApp.BLL.Services.Abstraction;
 using MessengerApp.Core.DTO.Authorization;
+using MessengerApp.Core.ResultConstants.AuthorizationConstants;
 using MessengerApp.Extensions;
 using Microsoft.AspNetCore.Mvc;
-using Role = MessengerApp.Core.ResultConstants.AuthorizationConstants.Role;
 
 namespace MessengerApp.Controllers
 {
-    [BearerAuthorize(Role.Admin)]
+    [BearerAuthorize(Roles.Admin)]
     [ApiController]
     [Route("api/[controller]/users")]
     public class AdminController : ControllerBase

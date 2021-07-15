@@ -3,7 +3,7 @@
 namespace MessengerApp.Core.ResultConstants.AuthorizationConstants
 {
     [Flags]
-    public enum Role
+    public enum Roles
     {
         /// <summary>
         /// Represents User role.

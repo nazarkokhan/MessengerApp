@@ -8,20 +8,12 @@ namespace MessengerApp.DAL.Repository
     {
         private readonly LibContext _db;
 
-        public EfUnitOfWork(
-            LibContext context, IAuthorRepository authorRepository, 
-            IBookRepository bookRepository, IUserRepository users)
+        public EfUnitOfWork(LibContext context, IUserRepository users)
         {
             _db = context;
-            Authors = authorRepository;
-            Books = bookRepository;
             Users = users;
         }
 
-        public IAuthorRepository Authors { get; }
-
-        public IBookRepository Books { get; }
-        
         public IUserRepository Users { get; }
 
         public Task SaveAsync() 
