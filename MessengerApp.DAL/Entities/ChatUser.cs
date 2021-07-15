@@ -1,0 +1,16 @@
+﻿using MessengerApp.DAL.Entities.Abstract;
+using MessengerApp.DAL.Entities.Authorization;
+
+namespace MessengerApp.DAL.Entities
+{
+    public class ChatUser : EntityBase
+    {
+        public Chat Chat { get; set; }
+        
+        public int ChatId { get; set; }
+
+        public User User { get; set; }
+        
+        public int UserId { get; set; }
+    }
+}

@@ -4,7 +4,7 @@ using MessengerApp.Core.DTO;
 using MessengerApp.Core.DTO.Authorization;
 using MessengerApp.Core.ResultModel;
 using MessengerApp.Core.ResultModel.Generics;
-using MessengerApp.DAL.Entities;
+using MessengerApp.DAL.Entities.Authorization;
 
 namespace MessengerApp.BLL.Services.Abstraction
 {

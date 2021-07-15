@@ -7,18 +7,9 @@ using MessengerApp.Core.ResultConstants.AuthorizationConstants;
 using MessengerApp.Core.ResultModel;
 using MessengerApp.Core.ResultModel.Generics;
 using MessengerApp.DAL.EF;
-using MessengerApp.DAL.Entities;
 using MessengerApp.DAL.Repository;
 using MessengerApp.DAL.Repository.Abstraction;
-using MessengerApp.Core.DTO;
-using MessengerApp.Core.DTO.Authorization;
-using MessengerApp.Core.ResultConstants.AuthorizationConstants;
-using MessengerApp.Core.ResultModel;
-using MessengerApp.Core.ResultModel.Generics;
-using MessengerApp.DAL.EF;
-using MessengerApp.DAL.Entities;
-using MessengerApp.DAL.Repository;
-using MessengerApp.DAL.Repository.Abstraction;
+using MessengerApp.DAL.Entities.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using Xunit;
@@ -46,11 +37,11 @@ namespace MessengerApp.BLL.Tests
                 new() {Email = "user8@gmail.com", Age = 30}
             };
 
-            var dbContextOptions = new DbContextOptionsBuilder<LibContext>()
+            var dbContextOptions = new DbContextOptionsBuilder<MsgContext>()
                 .UseInMemoryDatabase("TestDb")
                 .Options;
 
-            var db = new LibContext(dbContextOptions);
+            var db = new MsgContext(dbContextOptions);
 
             db.Users.AddRangeAsync(_dbSeeds).GetAwaiter().GetResult();
             

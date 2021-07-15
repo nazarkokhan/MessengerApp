@@ -1,7 +1,7 @@
 using MessengerApp.BLL.Services;
 using MessengerApp.BLL.Services.Abstraction;
 using MessengerApp.DAL.EF;
-using MessengerApp.DAL.Entities;
+using MessengerApp.DAL.Entities.Authorization;
 using MessengerApp.DAL.Repository;
 using MessengerApp.DAL.Repository.Abstraction;
 using MessengerApp.Extensions;
@@ -35,12 +35,12 @@ namespace MessengerApp
             services
                 .AddIdentity<User, Role>(options => options.ConfigurePassword())
                 .AddUserManager<UserManager<User>>()
-                .AddEntityFrameworkStores<LibContext>()
+                .AddEntityFrameworkStores<MsgContext>()
                 .AddDefaultTokenProviders();
 
             services
-                .AddDbContext<LibContext>(options => options
-                    .UseSqlServer(Configuration.GetConnectionString(nameof(LibContext)))
+                .AddDbContext<MsgContext>(options => options
+                    .UseSqlServer(Configuration.GetConnectionString(nameof(MsgContext)))
                     .UseLoggerFactory(LoggerFactory.Create(lb => lb.AddConsole()))
                 );
 

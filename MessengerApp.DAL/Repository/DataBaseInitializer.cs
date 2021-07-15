@@ -4,7 +4,7 @@ using MessengerApp.Core.DTO.Authorization;
 using MessengerApp.Core.Extensions;
 using MessengerApp.Core.ResultConstants.AuthorizationConstants;
 using MessengerApp.DAL.EF;
-using MessengerApp.DAL.Entities;
+using MessengerApp.DAL.Entities.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
@@ -13,7 +13,7 @@ namespace MessengerApp.DAL.Repository
 {
     public class DataBaseInitializer
     {
-        private readonly LibContext _db;
+        private readonly MsgContext _db;
 
         private readonly RoleManager<Role> _roleManager;
 
@@ -25,7 +25,7 @@ namespace MessengerApp.DAL.Repository
         
         private readonly IHostEnvironment _hostEnvironment;
 
-        public DataBaseInitializer(LibContext db, RoleManager<Role> roleManager, 
+        public DataBaseInitializer(MsgContext db, RoleManager<Role> roleManager, 
             UserManager<User> userManager, IHostEnvironment hostEnvironment)
         {
             _db = db;

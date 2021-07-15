@@ -9,7 +9,7 @@ using MessengerApp.Core.ResultConstants.AuthorizationConstants;
 using MessengerApp.Core.ResultModel;
 using MessengerApp.Core.ResultModel.Generics;
 using MessengerApp.DAL.EF;
-using MessengerApp.DAL.Entities;
+using MessengerApp.DAL.Entities.Authorization;
 using MessengerApp.DAL.Repository.Abstraction;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,14 +17,15 @@ namespace MessengerApp.DAL.Repository
 {
     public class UserRepository : IUserRepository
     {
-        private readonly LibContext _db;
+        private readonly MsgContext _db;
 
-        public UserRepository(LibContext context)
+        public UserRepository(MsgContext context)
         {
             _db = context;
         }
         
-        public async Task<Result<Pager<User>>> GetUsersPageAsync(string? search, int page, int items)
+        public async Task<Result<Pager<User>>> GetUsersPageAsync(
+            string? search, int page, int items)
         {
             try
             {
@@ -33,6 +34,38 @@ namespace MessengerApp.DAL.Repository
 
                 var userEntities = _db.Users
                     .OrderBy(a => a.Id)
+                    .TakePage(page, items);
+
+                if (!string.IsNullOrWhiteSpace(search))
+                    userEntities = userEntities
+                        .Where(u => u.UserName.Contains(search) || u.Email.Contains(search));
+
+                return Result<Pager<User>>.CreateSuccess(
+                    new Pager<User>(
+                        await userEntities.ToListAsync(),
+                        totalCount
+                    )
+                );
+            }
+            catch (Exception e)
+            {
+                return Result<Pager<User>>.CreateFailed(CommonResultConstants.Unexpected, e);
+            }
+        }
+        
+        public async Task<Result<Pager<User>>> GetUsersInChatAsync(
+            int chatId, string? search, int page, int items)
+        {
+            try
+            {
+                var totalCount = await _db.ChatUsers
+                    .Where(cu => cu.ChatId == chatId)
+                    .CountAsync();
+
+                var userEntities = _db.ChatUsers
+                    .Where(cu => cu.ChatId == chatId)
+                    .Select(cu => cu.User)
+                    .OrderBy(u => u.Id)
                     .TakePage(page, items);
 
                 if (!string.IsNullOrWhiteSpace(search))
