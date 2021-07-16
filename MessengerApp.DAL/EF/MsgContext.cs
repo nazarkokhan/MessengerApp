@@ -2,6 +2,8 @@
 using MessengerApp.DAL.Entities.Authorization;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+// ReSharper disable All
+#pragma warning disable 8618
 
 namespace MessengerApp.DAL.EF
 {
@@ -11,16 +13,20 @@ namespace MessengerApp.DAL.EF
         {
         }
 
-        public DbSet<Chat> Chats { get; set; }
-        
         public override DbSet<User> Users { get; set; }
-        
+
+        public DbSet<Chat> Chats { get; set; }
+
         public DbSet<ChatUser> ChatUsers { get; set; }
+        
+        public DbSet<Message> Messages { get; set; }
+        
+        public DbSet<Contact> Contacts { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.Entity<User>()
-                .HasIndex(u => u.NickName)
+                .HasIndex(u => u.UserName)
                 .IsUnique();
         }
     }

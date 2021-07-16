@@ -5,12 +5,12 @@ using MessengerApp.DAL.Entities.Authorization;
 
 namespace MessengerApp.DAL.Entities
 {
-    public class ChatUser : EntityBase
+    public class Contact : EntityBase
     {
-        public int ChatId { get; set; }
-        public Chat Chat { get; set; }
-
         public int UserId { get; set; }
         public User User { get; set; }
+
+        public int UserContactId { get; set; }
+        public User UserContact { get; set; }
     }
 }

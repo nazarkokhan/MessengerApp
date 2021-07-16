@@ -9,9 +9,12 @@ namespace MessengerApp.DAL.Repository.Abstraction
 {
     public interface IUserRepository
     {
-        Task<Result<Pager<User>>> GetUsersPageAsync(
+        Task<Result<Pager<User>>> GetUsersPageAsync( //TODO useless method 
             string? search, int page, int items);
 
+        Task<Result<Pager<User>>> GetUsersInContactBookPageAsync(
+            int contactBookId, string? search, int page, int items);
+        
         Task<Result<Pager<User>>> GetUsersInChatAsync(
             int chatId, string? search, int page, int items);
         

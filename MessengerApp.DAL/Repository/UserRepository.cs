@@ -53,6 +53,12 @@ namespace MessengerApp.DAL.Repository
             }
         }
         
+        
+        public Task<Result<Pager<User>>> GetUsersInContactBookPageAsync(int contactBookId, string? search, int page, int items)
+        {
+            throw new NotImplementedException();
+        }
+        
         public async Task<Result<Pager<User>>> GetUsersInChatAsync(
             int chatId, string? search, int page, int items)
         {
@@ -84,7 +90,7 @@ namespace MessengerApp.DAL.Repository
                 return Result<Pager<User>>.CreateFailed(CommonResultConstants.Unexpected, e);
             }
         }
-        
+
         public async Task<Result<User>> GetUserAsync(int id)
         {
             try

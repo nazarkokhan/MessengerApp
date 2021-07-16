@@ -11,4 +11,8 @@
     <PackageReference Include="Serilog.Extensions.Logging.File" Version="2.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="DTO\Chat" />
+  </ItemGroup>
+
 </Project>
