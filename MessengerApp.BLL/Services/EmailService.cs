@@ -23,7 +23,8 @@ namespace MessengerApp.BLL.Services
             };
         }
 
-        public Task SendAsync(string to, string body, string? subject) 
+        public Task SendAsync(
+            string to, string body, string? subject) 
             => _smtpClient
                 .SendMailAsync(
                     _configuration["EmailSettings:Email"],

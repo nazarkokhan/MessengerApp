@@ -41,9 +41,9 @@ namespace MessengerApp.DAL.Repository
 
             _users ??= new List<RegisterDto>
             {
-                new("admin@gmail.com", "adminAccess", 99),
-                new("guest@gmail.com", "guestAccess", 99),
-                new("user@gmail.com", "userAccess", 99)
+                new("admin", "admin@gmail.com", "adminAccess"),
+                new("guest", "guest@gmail.com", "guestAccess"),
+                new("user", "user@gmail.com", "userAccess")
             };
         }
 
@@ -73,8 +73,7 @@ namespace MessengerApp.DAL.Repository
                     var user = new User
                     {
                         Email = u.Email,
-                        UserName = u.Email,
-                        Age = u.Age
+                        UserName = u.UserName,
                     };
 
                     await _userManager.CreateAsync(user, u.Password);

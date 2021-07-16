@@ -2,14 +2,13 @@
 using System.Linq;
 using System.Threading.Tasks;
 using MessengerApp.Core.DTO;
-using MessengerApp.Core.DTO.Authorization;
+using MessengerApp.Core.DTO.User;
 using MessengerApp.Core.Extensions;
 using MessengerApp.Core.ResultConstants;
 using MessengerApp.Core.ResultConstants.AuthorizationConstants;
 using MessengerApp.Core.ResultModel;
 using MessengerApp.Core.ResultModel.Generics;
 using MessengerApp.DAL.EF;
-using MessengerApp.DAL.Entities.Authorization;
 using MessengerApp.DAL.Repository.Abstraction;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,8 +22,8 @@ namespace MessengerApp.DAL.Repository
         {
             _db = context;
         }
-        
-        public async Task<Result<Pager<User>>> GetUsersPageAsync(
+
+        public async Task<Result<Pager<UserDto>>> GetUsersPageAsync(
             string? search, int page, int items)
         {
             try
@@ -33,15 +32,16 @@ namespace MessengerApp.DAL.Repository
                     .CountAsync();
 
                 var userEntities = _db.Users
-                    .OrderBy(a => a.Id)
+                    .Select(u => u.MapUserDto())
+                    .OrderBy(a => a.UserName)
                     .TakePage(page, items);
 
                 if (!string.IsNullOrWhiteSpace(search))
                     userEntities = userEntities
                         .Where(u => u.UserName.Contains(search) || u.Email.Contains(search));
 
-                return Result<Pager<User>>.CreateSuccess(
-                    new Pager<User>(
+                return Result<Pager<UserDto>>.CreateSuccess(
+                    new Pager<UserDto>(
                         await userEntities.ToListAsync(),
                         totalCount
                     )
@@ -49,11 +49,11 @@ namespace MessengerApp.DAL.Repository
             }
             catch (Exception e)
             {
-                return Result<Pager<User>>.CreateFailed(CommonResultConstants.Unexpected, e);
+                return Result<Pager<UserDto>>.CreateFailed(CommonResultConstants.Unexpected, e);
             }
         }
-        
-        public async Task<Result<Pager<User>>> GetUsersInChatAsync(
+
+        public async Task<Result<Pager<UserDto>>> GetUsersInChatAsync(
             int chatId, string? search, int page, int items)
         {
             try
@@ -63,17 +63,18 @@ namespace MessengerApp.DAL.Repository
                     .CountAsync();
 
                 var userEntities = _db.ChatUsers
+                    .Include(cu => cu.User)
                     .Where(cu => cu.ChatId == chatId)
-                    .Select(cu => cu.User)
-                    .OrderBy(u => u.Id)
+                    .Select(cu => cu.User.MapUserDto())
+                    .OrderBy(u => u.UserName)
                     .TakePage(page, items);
 
                 if (!string.IsNullOrWhiteSpace(search))
                     userEntities = userEntities
                         .Where(u => u.UserName.Contains(search) || u.Email.Contains(search));
 
-                return Result<Pager<User>>.CreateSuccess(
-                    new Pager<User>(
+                return Result<Pager<UserDto>>.CreateSuccess(
+                    new Pager<UserDto>(
                         await userEntities.ToListAsync(),
                         totalCount
                     )
@@ -81,11 +82,12 @@ namespace MessengerApp.DAL.Repository
             }
             catch (Exception e)
             {
-                return Result<Pager<User>>.CreateFailed(CommonResultConstants.Unexpected, e);
+                return Result<Pager<UserDto>>.CreateFailed(CommonResultConstants.Unexpected, e);
             }
         }
-        
-        public async Task<Result<User>> GetUserAsync(int id)
+
+        public async Task<Result<UserDto>> GetUserAsync(
+            int id)
         {
             try
             {
@@ -93,48 +95,46 @@ namespace MessengerApp.DAL.Repository
                     .FirstOrDefaultAsync(u => u.Id == id);
 
                 return userEntity is null
-                    ? Result<User>.CreateFailed(
+                    ? Result<UserDto>.CreateFailed(
                         AccountResultConstants.UserNotFound,
                         new NullReferenceException()
                     )
-                    : Result<User>.CreateSuccess(userEntity);
+                    : Result<UserDto>.CreateSuccess(userEntity.MapUserDto());
             }
             catch (Exception e)
             {
-                return Result<User>.CreateFailed(CommonResultConstants.Unexpected, e);
+                return Result<UserDto>.CreateFailed(CommonResultConstants.Unexpected, e);
             }
         }
 
-        public async Task<Result<User>> EditUserAsync(EditUserDto userDto)
+        public async Task<Result<UserDto>> EditUserAsync(
+            EditUserDto editUserDto)
         {
             try
             {
                 var userEntity = await _db.Users
-                    .FirstOrDefaultAsync(u => u.Id == userDto.Id);
+                    .FirstOrDefaultAsync(u => u.Id == editUserDto.Id);
 
                 if (userEntity is null)
-                    return Result<User>.CreateFailed(
+                    return Result<UserDto>.CreateFailed(
                         AccountResultConstants.UserNotFound,
                         new NullReferenceException()
                     );
 
-                userEntity.Email = userDto.NewEmail;
-
-                userEntity.UserName = userDto.NewEmail;
-
-                userEntity.Age = userDto.NewAge;
+                userEntity.MapEditUserDto(editUserDto);
 
                 await _db.SaveChangesAsync();
-                    
-                return Result<User>.CreateSuccess(userEntity);
+
+                return Result<UserDto>.CreateSuccess(userEntity.MapUserDto());
             }
             catch (Exception e)
             {
-                return Result<User>.CreateFailed(CommonResultConstants.Unexpected, e);
+                return Result<UserDto>.CreateFailed(CommonResultConstants.Unexpected, e);
             }
         }
 
-        public async Task<Result> DeleteUserAsync(int id)
+        public async Task<Result> DeleteUserAsync(
+            int id)
         {
             try
             {
@@ -158,8 +158,9 @@ namespace MessengerApp.DAL.Repository
                 return Result.CreateFailed(CommonResultConstants.Unexpected, e);
             }
         }
-        
-        public async Task<Result<bool>> UserExistsAsync(string email)
+
+        public async Task<Result<bool>> UserExistsAsync(
+            string email)
         {
             try
             {

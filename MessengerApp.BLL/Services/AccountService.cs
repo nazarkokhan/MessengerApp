@@ -14,6 +14,8 @@ using MessengerApp.Core.ResultModel;
 using MessengerApp.Core.ResultModel.Generics;
 using MessengerApp.DAL.Repository.Abstraction;
 using MessengerApp.BLL.Services.Abstraction;
+using MessengerApp.Core.DTO;
+using MessengerApp.Core.DTO.User;
 using MessengerApp.DAL.Entities.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
@@ -35,6 +37,11 @@ namespace MessengerApp.BLL.Services
             _unitOfWork = unitOfWork;
         }
 
+        public Task<Result<Pager<UserDto>>> GetUsersInChatAsync(
+            int chatId, string? search, int page, int items)
+        {
+            return _unitOfWork.Users.GetUsersInChatAsync(chatId, search, page, items);
+        }
         public async Task<Result> CreateUserAndSendEmailTokenAsync(RegisterDto register)
         {
             try
@@ -42,8 +49,7 @@ namespace MessengerApp.BLL.Services
                 var userEntity = new User
                 {
                     Email = register.Email,
-                    UserName = register.Email,
-                    Age = register.Age
+                    UserName = register.UserName,
                 };
 
                 if ((await _unitOfWork.Users.UserExistsAsync(register.Email)).Data)
@@ -78,7 +84,8 @@ namespace MessengerApp.BLL.Services
             }
         }
 
-        public async Task<Result> ConfirmRegistrationAsync(string token, string userId)
+        public async Task<Result> ConfirmRegistrationWithTokenAsync(
+            string token, string userId)
         {
             try
             {
@@ -105,7 +112,8 @@ namespace MessengerApp.BLL.Services
             }
         }
 
-        public async Task<Result<Token>> GetAccessTokenAsync(LogInUserDto userInput)
+        public async Task<Result<Token>> GetAccessTokenAsync(
+            LogInUserDto userInput)
         {
             try
             {
@@ -147,7 +155,8 @@ namespace MessengerApp.BLL.Services
             }
         }
 
-        public async Task<Result<ProfileDto>> GetProfile(int userId)
+        public async Task<Result<ProfileDto>> GetProfile(
+            int userId)
         {
             try
             {
@@ -167,7 +176,8 @@ namespace MessengerApp.BLL.Services
             }
         }
 
-        public async Task<Result> SendEmailResetTokenAsync(ResetEmailDto resetEmailDto, int userId)
+        public async Task<Result> SendEmailResetTokenAsync(
+            ResetEmailDto resetEmailDto, int userId)
         {
             try
             {
@@ -207,7 +217,8 @@ namespace MessengerApp.BLL.Services
             }
         }
 
-        public async Task<Result> ResetEmailAsync(string token, string newEmail, int userId)
+        public async Task<Result> ResetEmailAsync(
+            string token, string newEmail, int userId)
         {
             try
             {
@@ -236,7 +247,8 @@ namespace MessengerApp.BLL.Services
             }
         }
 
-        public async Task<Result> SendPasswordResetTokenAsync(ResetPasswordDto resetPasswordDto)
+        public async Task<Result> SendPasswordResetTokenAsync(
+            ResetPasswordDto resetPasswordDto)
         {
             try
             {
@@ -266,7 +278,8 @@ namespace MessengerApp.BLL.Services
             }
         }
 
-        public async Task<Result> ResetPasswordAsync(TokenPasswordDto tokenPasswordDto)
+        public async Task<Result> ResetPasswordAsync(
+            TokenPasswordDto tokenPasswordDto)
         {
             try
             {

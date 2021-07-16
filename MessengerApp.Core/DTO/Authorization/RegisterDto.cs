@@ -4,13 +4,17 @@ namespace MessengerApp.Core.DTO.Authorization
 {
     public class RegisterDto
     {
-        public RegisterDto(string email, string password, int age)
+        public RegisterDto(string userName, string email, string password)
         {
+            UserName = userName;
             Email = email;
             Password = password;
-            Age = age;
         }
 
+        [Required]
+        [DataType(DataType.Text)]
+        public string UserName { get; }
+        
         [Required]
         [DataType(DataType.EmailAddress)]
         public string Email { get; }
@@ -18,9 +22,5 @@ namespace MessengerApp.Core.DTO.Authorization
         [Required]
         [DataType(DataType.Password)]
         public string Password { get; }
-
-        [Required] 
-        [Range(0, 150)] 
-        public int Age { get; }
     }
 }

@@ -4,11 +4,11 @@ using MessengerApp.Core.DTO.Chat;
 using MessengerApp.Core.ResultModel;
 using MessengerApp.Core.ResultModel.Generics;
 
-namespace MessengerApp.DAL.Repository.Abstraction
+namespace MessengerApp.BLL.Services.Abstraction
 {
-    public interface IChatRepository
+    public interface IChatService
     {
-        Task<Result<Pager<ChatDto>>> GetChatAsync(
+        Task<Result<Pager<ChatDto>>> GetChatsPageAsync(
             string? search, int page, int items);
         
         Task<Result<Pager<ChatDto>>> GetUserChatsPageAsync(

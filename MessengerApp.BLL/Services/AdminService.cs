@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Threading.Tasks;
 using MessengerApp.Core.DTO;
-using MessengerApp.Core.DTO.Authorization;
 using MessengerApp.Core.ResultConstants;
 using MessengerApp.Core.ResultConstants.AuthorizationConstants;
 using MessengerApp.Core.ResultModel;
 using MessengerApp.Core.ResultModel.Generics;
 using MessengerApp.DAL.Repository.Abstraction;
 using MessengerApp.BLL.Services.Abstraction;
+using MessengerApp.Core.DTO.User;
 using MessengerApp.DAL.Entities.Authorization;
 using Microsoft.AspNetCore.Identity;
 
@@ -25,13 +25,18 @@ namespace MessengerApp.BLL.Services
             _unitOfWork = unitOfWork;
         }
 
-        public Task<Result<Pager<User>>> GetUsersPageAsync(string? search, int page, int items) 
-            => _unitOfWork.Users.GetUsersPageAsync(search, page, items);
+        public Task<Result<Pager<UserDto>>> GetUsersPageAsync(
+            string? search, int page, int items
+        ) =>
+            _unitOfWork.Users.GetUsersPageAsync(search, page, items);
 
-        public Task<Result<User>> GetUserAsync(int id) 
-            => _unitOfWork.Users.GetUserAsync(id);
+        public Task<Result<UserDto>> GetUserAsync(
+            int id
+        ) =>
+            _unitOfWork.Users.GetUserAsync(id);
 
-        public async Task<Result<User>> EditUserAsync(EditUserDto editUserDto)
+        public async Task<Result<UserDto>> EditUserAsync(
+            EditUserDto editUserDto)
         {
             try
             {
@@ -40,26 +45,29 @@ namespace MessengerApp.BLL.Services
                 if (!editUserResult.Success)
                     return editUserResult;
 
-                var userEntity = editUserResult.Data;
-                
+                var userEntity = await _userManager.FindByEmailAsync(editUserResult.Data.Email);
+
                 var removePassword = await _userManager.RemovePasswordAsync(userEntity);
 
-                if(!removePassword.Succeeded)
-                    return Result<User>.CreateFailed(AccountResultConstants.ErrorRemovingPassword);
-                
-                var addPass = await _userManager.AddPasswordAsync(userEntity, editUserDto.NewPassword);
+                if (!removePassword.Succeeded)
+                    return Result<UserDto>.CreateFailed(AccountResultConstants.ErrorRemovingPassword);
+
+                var addPass = await _userManager
+                    .AddPasswordAsync(userEntity, editUserDto.NewPassword);
 
                 return !addPass.Succeeded
-                    ? Result<User>.CreateFailed(AccountResultConstants.ErrorAddingPassword)
-                    : Result<User>.CreateSuccess(userEntity);
+                    ? Result<UserDto>.CreateFailed(AccountResultConstants.ErrorAddingPassword)
+                    : Result<UserDto>.CreateSuccess(userEntity.MapUserDto());
             }
             catch (Exception e)
             {
-                return Result<User>.CreateFailed(CommonResultConstants.Unexpected, e);
+                return Result<UserDto>.CreateFailed(CommonResultConstants.Unexpected, e);
             }
         }
 
-        public Task<Result> DeleteUserAsync(int id) 
-            => _unitOfWork.Users.DeleteUserAsync(id);
+        public Task<Result> DeleteUserAsync(
+            int id
+        ) =>
+            _unitOfWork.Users.DeleteUserAsync(id);
     }
 }

@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using MessengerApp.BLL.Services;
 using MessengerApp.BLL.Services.Abstraction;
-using MessengerApp.Core.DTO.Authorization;
+using MessengerApp.Core.DTO.User;
 using MessengerApp.Core.ResultConstants;
 using MessengerApp.Core.ResultConstants.AuthorizationConstants;
 using MessengerApp.Core.ResultModel.Generics;
@@ -31,21 +31,21 @@ namespace MessengerApp.BLL.Tests
         }
 
         [Theory]
-        [InlineData("newUser@gmail.com", 25, "newAccess", 1)]
+        [InlineData("newUser", "newUser@gmail.com", "newAccess", "about", 1)]
         public async Task EditUserAsync_EditUserDto_SuccessEditedUserReturned(
-            string newEmail, int newAge, string newPassword, int id)
+            string newUserName, string newEmail, string newPassword, string about, int id)
         {
-            var editUserDto = new EditUserDto(newEmail, newAge, newPassword, id);
+            var editUserDto = new EditUserDto(newUserName, newEmail, newPassword, about, id);
 
             var userEntity = new User
             {
                 Email = newEmail,
-                Age = newAge
+                UserName = newUserName
             };
 
             _unitOfWorkMock.Setup(unitOfWork => unitOfWork.Users
                 .EditUserAsync(editUserDto)
-            ).Returns(Task.FromResult(Result<User>.CreateSuccess(userEntity)));
+            ).Returns(Task.FromResult(Result<UserDto>.CreateSuccess(userEntity.MapUserDto())));
 
             _userManagerMock.Setup(userManager => userManager
                 .RemovePasswordAsync(userEntity)
@@ -57,7 +57,7 @@ namespace MessengerApp.BLL.Tests
 
             var actual = await _adminService.EditUserAsync(editUserDto);
 
-            var expected = Result<User>.CreateSuccess(userEntity);
+            var expected = Result<UserDto>.CreateSuccess(userEntity.MapUserDto());
 
             Assert.NotNull(actual);
             Assert.Null(actual.Exception);
@@ -67,28 +67,28 @@ namespace MessengerApp.BLL.Tests
         }
 
         [Theory]
-        [InlineData("newUser@gmail.com", 25, "newAccess", 1)]
+        [InlineData("newUser", "newUser@gmail.com", "newAccess", "about", 1)]
         public async Task EditUserAsync_EditUserDto_FailFromRepositoryReturned(
-            string newEmail, int newAge, string newPassword, int id)
+            string newUserName, string newEmail, string newPassword, string about, int id)
         {
-            var editUserDto = new EditUserDto(newEmail, newAge, newPassword, id);
+            var editUserDto = new EditUserDto(newUserName, newEmail, newPassword, about, id);
 
             var userEntity = new User
             {
                 Email = newEmail,
-                Age = newAge
+                UserName = newUserName
             };
 
             _unitOfWorkMock.Setup(unitOfWork => unitOfWork.Users
                 .EditUserAsync(editUserDto)
-            ).Returns(Task.FromResult(Result<User>.CreateFailed(
+            ).Returns(Task.FromResult(Result<UserDto>.CreateFailed(
                 AccountResultConstants.UserNotFound,
                 new NullReferenceException()))
             );
 
             var actual = await _adminService.EditUserAsync(editUserDto);
 
-            var expected = Result<User>.CreateFailed(
+            var expected = Result<UserDto>.CreateFailed(
                 AccountResultConstants.UserNotFound,
                 new NullReferenceException()
             );
@@ -99,23 +99,23 @@ namespace MessengerApp.BLL.Tests
             Assert.Equal(expected.Success, actual.Success);
             Assert.Equal(expected.Data, actual.Data);
         }
-        
+
         [Theory]
-        [InlineData("newUser@gmail.com", 25, "newAccess", 1)]
+        [InlineData("newUser", "newUser@gmail.com", "newAccess", "about", 1)]
         public async Task EditUserAsync_EditUserDto_FailRemovingPasswordReturned(
-            string newEmail, int newAge, string newPassword, int id)
+            string newUserName, string newEmail, string newPassword, string about, int id)
         {
-            var editUserDto = new EditUserDto(newEmail, newAge, newPassword, id);
+            var editUserDto = new EditUserDto(newUserName, newEmail, newPassword, about, id);
 
             var userEntity = new User
             {
                 Email = newEmail,
-                Age = newAge
+                UserName = newUserName
             };
 
             _unitOfWorkMock.Setup(unitOfWork => unitOfWork.Users
                 .EditUserAsync(editUserDto)
-            ).Returns(Task.FromResult(Result<User>.CreateSuccess(userEntity)));
+            ).Returns(Task.FromResult(Result<UserDto>.CreateSuccess(userEntity.MapUserDto())));
 
             _userManagerMock.Setup(userManager => userManager
                 .RemovePasswordAsync(userEntity)
@@ -123,7 +123,7 @@ namespace MessengerApp.BLL.Tests
 
             var actual = await _adminService.EditUserAsync(editUserDto);
 
-            var expected = Result<User>.CreateFailed(AccountResultConstants.ErrorRemovingPassword);
+            var expected = Result<UserDto>.CreateFailed(AccountResultConstants.ErrorRemovingPassword);
 
             Assert.NotNull(actual);
             Assert.Null(actual.Exception);
@@ -131,23 +131,23 @@ namespace MessengerApp.BLL.Tests
             Assert.Equal(expected.Success, actual.Success);
             Assert.Equal(expected.Data, actual.Data);
         }
-        
+
         [Theory]
-        [InlineData("newUser@gmail.com", 25, "newAccess", 1)]
+        [InlineData("newUser", "newUser@gmail.com", "newAccess", "about", 1)]
         public async Task EditUserAsync_EditUserDto_FailAddingPasswordReturned(
-            string newEmail, int newAge, string newPassword, int id)
+            string newUserName, string newEmail, string newPassword, string about, int id)
         {
-            var editUserDto = new EditUserDto(newEmail, newAge, newPassword, id);
+            var editUserDto = new EditUserDto(newUserName, newEmail, newPassword, about, id);
 
             var userEntity = new User
             {
                 Email = newEmail,
-                Age = newAge
+                UserName = newUserName
             };
 
             _unitOfWorkMock.Setup(unitOfWork => unitOfWork.Users
                 .EditUserAsync(editUserDto)
-            ).Returns(Task.FromResult(Result<User>.CreateSuccess(userEntity)));
+            ).Returns(Task.FromResult(Result<UserDto>.CreateSuccess(userEntity.MapUserDto())));
 
             _userManagerMock.Setup(userManager => userManager
                 .RemovePasswordAsync(userEntity)
@@ -159,7 +159,7 @@ namespace MessengerApp.BLL.Tests
 
             var actual = await _adminService.EditUserAsync(editUserDto);
 
-            var expected = Result<User>.CreateFailed(AccountResultConstants.ErrorAddingPassword);
+            var expected = Result<UserDto>.CreateFailed(AccountResultConstants.ErrorAddingPassword);
 
             Assert.NotNull(actual);
             Assert.Null(actual.Exception);
@@ -167,18 +167,18 @@ namespace MessengerApp.BLL.Tests
             Assert.Equal(expected.Success, actual.Success);
             Assert.Equal(expected.Data, actual.Data);
         }
-        
+
         [Theory]
-        [InlineData("newUser@gmail.com", 25, "newAccess", 1)]
+        [InlineData("newUser", "newUser@gmail.com", "newAccess", "about", 1)]
         public async Task EditUserAsync_EditUserDto_FailUnexpectedReturned(
-            string newEmail, int newAge, string newPassword, int id)
+            string newUserName, string newEmail, string newPassword, string about, int id)
         {
-            var editUserDto = new EditUserDto(newEmail, newAge, newPassword, id);
+            var editUserDto = new EditUserDto(newUserName, newEmail, newPassword, about, id);
 
             var userEntity = new User
             {
                 Email = newEmail,
-                Age = newAge
+                UserName = newUserName
             };
 
             _unitOfWorkMock.Setup(unitOfWork => unitOfWork.Users
@@ -187,7 +187,7 @@ namespace MessengerApp.BLL.Tests
 
             var actual = await _adminService.EditUserAsync(editUserDto);
 
-            var expected = Result<User>.CreateFailed(CommonResultConstants.Unexpected, new Exception());
+            var expected = Result<UserDto>.CreateFailed(CommonResultConstants.Unexpected, new Exception());
 
             Assert.NotNull(actual);
             Assert.NotNull(actual.Exception);

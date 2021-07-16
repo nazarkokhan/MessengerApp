@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using MessengerApp.Core.DTO;
-using MessengerApp.Core.DTO.Authorization;
+using MessengerApp.Core.DTO.User;
 using MessengerApp.Core.ResultConstants.AuthorizationConstants;
 using MessengerApp.Core.ResultModel;
 using MessengerApp.Core.ResultModel.Generics;
@@ -20,21 +20,19 @@ namespace MessengerApp.BLL.Tests
     {
         private readonly IUserRepository _userRepository;
 
-        private readonly List<User> _dbSeeds;
-
         public UserRepositoryTests()
         {
-            _dbSeeds = new List<User>
+            var dbSeeds = new List<User>
             {
-                new() {Email = "admin@gmail.com", Age = 20},
-                new() {Email = "user@gmail.com", Age = 25},
-                new() {Email = "use2@gmail.com", Age = 30},
-                new() {Email = "user3@gmail.com", Age = 25},
-                new() {Email = "user4@gmail.com", Age = 25},
-                new() {Email = "user5@gmail.com", Age = 25},
-                new() {Email = "user6@gmail.com", Age = 25},
-                new() {Email = "user7@gmail.com", Age = 25},
-                new() {Email = "user8@gmail.com", Age = 30}
+                new() {Email = "admin@gmail.com"},
+                new() {Email = "user@gmail.com"},
+                new() {Email = "use2@gmail.com" },
+                new() {Email = "user3@gmail.com" },
+                new() {Email = "user4@gmail.com"},
+                new() {Email = "user5@gmail.com"},
+                new() {Email = "user6@gmail.com"},
+                new() {Email = "user7@gmail.com"},
+                new() {Email = "user8@gmail.com"}
             };
 
             var dbContextOptions = new DbContextOptionsBuilder<MsgContext>()
@@ -43,7 +41,7 @@ namespace MessengerApp.BLL.Tests
 
             var db = new MsgContext(dbContextOptions);
 
-            db.Users.AddRangeAsync(_dbSeeds).GetAwaiter().GetResult();
+            db.Users.AddRangeAsync(dbSeeds).GetAwaiter().GetResult();
             
             db.SaveChangesAsync().GetAwaiter().GetResult();
 
@@ -75,7 +73,7 @@ namespace MessengerApp.BLL.Tests
         {
             var actual = await _userRepository.GetUserAsync(id);
 
-            var expected = Result<User>.CreateSuccess(actual.Data);
+            var expected = Result<UserDto>.CreateSuccess(actual.Data);
 
             Assert.NotNull(actual);
             Assert.Null(actual.Exception);
@@ -104,17 +102,17 @@ namespace MessengerApp.BLL.Tests
         }
 
         [Theory]
-        [InlineData("admin@gmail.com", 50, "adminAccess", 1)]
-        [InlineData("user@gmail.com", 10, "userAccess", 2)]
-        [InlineData("user2@gmail.com", 70, "userAccess", 3)]
+        [InlineData("admin", "admin@gmail.com", "adminAccess", "about", 9878)]
+        [InlineData("user", "user@gmail.com", "userAccess", "about", 4123)]
+        [InlineData("newUser", "newUser@gmail.com", "newAccess", "about", 1)]
         public async Task EditUserAsync_EditUserDto_SuccessEditedUserReturned(
-            string newEmail, int newAge, string newPassword, int id)
+            string newUserName, string newEmail, string newPassword, string about, int id)
         {
-            var userDto = new EditUserDto(newEmail, newAge, newPassword, id);
+            var userDto = new EditUserDto(newUserName, newEmail, newPassword, about, id);
 
             var actual = await _userRepository.EditUserAsync(userDto);
 
-            var expected = Result<User>.CreateSuccess(actual.Data);
+            var expected = Result<UserDto>.CreateSuccess(actual.Data);
 
             Assert.NotNull(actual);
             Assert.Null(actual.Exception);
@@ -124,13 +122,13 @@ namespace MessengerApp.BLL.Tests
         }
 
         [Theory]
-        [InlineData("admin@gmail.com", 50, "adminAccess", 988)]
-        [InlineData("user@gmail.com", 10, "userAccess", 238)]
-        [InlineData("user2@gmail.com", 70, "userAccess", 308)]
+        [InlineData("admin", "admin@gmail.com", "adminAccess", "about", 9878)]
+        [InlineData("user", "user@gmail.com", "userAccess", "about", 4123)]
+        [InlineData("newUser", "newUser@gmail.com", "newAccess", "about", 1)]
         public async Task EditUserAsync_EditUserDto_FailUserNotFoundReturned(
-            string newEmail, int newAge, string newPassword, int id)
+            string newUserName, string newEmail, string newPassword, string about, int id)
         {
-            var userDto = new EditUserDto(newEmail, newAge, newPassword, id);
+            var userDto = new EditUserDto(newUserName, newEmail, newPassword, about, id);
 
             var actual = await _userRepository.EditUserAsync(userDto);
 

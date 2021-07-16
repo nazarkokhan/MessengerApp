@@ -36,13 +36,13 @@ namespace MessengerApp.BLL.Tests
 
 
         [Theory]
-        [InlineData("user@gmail.com", "userAccess", 25)]
-        [InlineData("user1@gmail.com", "user1Access", 20)]
-        [InlineData("user2@gmail.com", "user2Access", 35)]
+        [InlineData("user", "user@gmail.com", "userAccess")]
+        [InlineData("user1", "user1@gmail.com", "user1Access")]
+        [InlineData("user2", "user2@gmail.com", "user2Access")]
         public async Task CreateUserAndSendEmailToken_RegisterDto_SuccessReturned(
-            string regEmail, string regPassword, int regAge)
+            string userName, string regEmail, string regPassword)
         {
-            var registerDto = new RegisterDto(regEmail, regPassword, regAge);
+            var registerDto = new RegisterDto(userName, regEmail, regPassword);
 
             var generatedToken = "smd=TOKEN_MOCK=12kd";
 
@@ -73,13 +73,13 @@ namespace MessengerApp.BLL.Tests
         }
 
         [Theory]
-        [InlineData("user@gmail.com", "userAccess", 25)]
-        [InlineData("user1@gmail.com", "user1Access", 20)]
-        [InlineData("user2@gmail.com", "user2Access", 35)]
+        [InlineData("user", "user@gmail.com", "userAccess")]
+        [InlineData("user1", "user1@gmail.com", "user1Access")]
+        [InlineData("user2", "user2@gmail.com", "user2Access")]
         public async Task CreateUserAndSendEmailToken_RegisterDto_FailUserExistsReturned(
-            string regEmail, string regPassword, int regAge)
+            string userName, string regEmail, string regPassword)
         {
-            var registerDto = new RegisterDto(regEmail, regPassword, regAge);
+            var registerDto = new RegisterDto(userName, regEmail, regPassword);
 
             _unitOfWorkMock.Setup(unitOfWork => unitOfWork
                 .Users.UserExistsAsync(It.IsAny<string>())
@@ -96,13 +96,13 @@ namespace MessengerApp.BLL.Tests
         }
 
         [Theory]
-        [InlineData("user@gmail.com", "userAccess", 25)]
-        [InlineData("user1@gmail.com", "user1Access", 20)]
-        [InlineData("user2@gmail.com", "user2Access", 35)]
+        [InlineData("user", "user@gmail.com", "userAccess")]
+        [InlineData("user1", "user1@gmail.com", "user1Access")]
+        [InlineData("user2", "user2@gmail.com", "user2Access")]
         public async Task CreateUserAndSendEmailToken_RegisterDto_FailCreatingUserReturned(
-            string regEmail, string regPassword, int regAge)
+            string userName, string regEmail, string regPassword)
         {
-            var registerDto = new RegisterDto(regEmail, regPassword, regAge);
+            var registerDto = new RegisterDto(userName, regEmail, regPassword);
 
             _unitOfWorkMock.Setup(unitOfWork => unitOfWork
                 .Users.UserExistsAsync(It.IsAny<string>())
@@ -123,13 +123,13 @@ namespace MessengerApp.BLL.Tests
         }
 
         [Theory]
-        [InlineData("user@gmail.com", "userAccess", 25)]
-        [InlineData("user1@gmail.com", "user1Access", 20)]
-        [InlineData("user2@gmail.com", "user2Access", 35)]
+        [InlineData("user", "user@gmail.com", "userAccess")]
+        [InlineData("user1", "user1@gmail.com", "user1Access")]
+        [InlineData("user2", "user2@gmail.com", "user2Access")]
         public async Task CreateUserAndSendEmailToken_RegisterDto_FailUnexpectedExceptionReturned(
-            string regEmail, string regPassword, int regAge)
+            string userName, string regEmail, string regPassword)
         {
-            var registerDto = new RegisterDto(regEmail, regPassword, regAge);
+            var registerDto = new RegisterDto(userName, regEmail, regPassword);
 
             _unitOfWorkMock.Setup(unitOfWork => unitOfWork
                 .Users.UserExistsAsync(It.IsAny<string>())
@@ -172,7 +172,7 @@ namespace MessengerApp.BLL.Tests
                 .SendAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())
             ).Returns(Task.CompletedTask);
 
-            var actual = await _accountService.ConfirmRegistrationAsync(token, userId);
+            var actual = await _accountService.ConfirmRegistrationWithTokenAsync(token, userId);
 
             var expected = Result.CreateSuccess();
 
@@ -202,7 +202,7 @@ namespace MessengerApp.BLL.Tests
                 .ConfirmEmailAsync(userEntity, token)
             ).Returns(Task.FromResult(IdentityResult.Failed()));
 
-            var actual = await _accountService.ConfirmRegistrationAsync(token, userId);
+            var actual = await _accountService.ConfirmRegistrationWithTokenAsync(token, userId);
 
             var expected = Result.CreateFailed(AccountResultConstants.InvalidRegistrationToken);
 
@@ -227,7 +227,7 @@ namespace MessengerApp.BLL.Tests
                 .FindByIdAsync(userId)
             ).Throws(new Exception());
 
-            var actual = await _accountService.ConfirmRegistrationAsync(token, userId);
+            var actual = await _accountService.ConfirmRegistrationWithTokenAsync(token, userId);
 
             var expected = Result.CreateFailed(CommonResultConstants.Unexpected, new Exception());
 

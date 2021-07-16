@@ -1,14 +1,15 @@
 ﻿using MessengerApp.Core.ResultConstants.AuthorizationConstants;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+// ReSharper disable All
 
 namespace MessengerApp
 {
     public class BearerAuthorizeAttribute : AuthorizeAttribute
     {
-        public BearerAuthorizeAttribute(Roles roleses) : this()
+        public BearerAuthorizeAttribute(Roles roles) : this()
         {
-            Roles = roleses.ToString();
+            Roles = roles.ToString();
         }
 
         public BearerAuthorizeAttribute()

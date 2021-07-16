@@ -4,7 +4,13 @@ namespace MessengerApp.DAL.Repository.Abstraction
 {
     public interface IUnitOfWork
     {
-        IUserRepository Users { get; }
+        public IUserRepository Users { get; }
+        
+        public IChatRepository Chats { get; }
+        
+        public IMessageRepository Message { get; }
+        
+        public IContactRepository Contact { get; }
 
         Task SaveAsync();
     }
