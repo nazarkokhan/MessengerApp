@@ -4,6 +4,7 @@ using MessengerApp.Core.DTO;
 using MessengerApp.Core.DTO.User;
 using MessengerApp.Core.ResultModel;
 using MessengerApp.Core.ResultModel.Generics;
+using Microsoft.AspNetCore.Mvc;
 
 namespace MessengerApp.BLL.Services.Abstraction
 {
@@ -13,7 +14,7 @@ namespace MessengerApp.BLL.Services.Abstraction
             string? search, int page, int items);
 
         Task<Result<UserDto>> GetUserAsync(
-            int id);
+            [FromQuery] [Range(1, int.MaxValue)] int id);
 
         Task<Result<UserDto>> EditUserAsync(
             EditUserDto editUserDto);

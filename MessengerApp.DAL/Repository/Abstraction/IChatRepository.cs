@@ -15,12 +15,15 @@ namespace MessengerApp.DAL.Repository.Abstraction
             int userId, string? search, int page, int items);
 
         Task<Result<ChatDto>> GetChatAsync(
-            int chatId);
+            int id);
+
+        Task<Result<ChatDto>> CreateChatAsync(
+            int userId, CreateChatDto createChatDto);
 
         Task<Result<ChatDto>> EditChatAsync(
-            int userId, int chatId, EditChatDto editChatDto);
+            int userId, EditChatDto editChatDto);
         
         Task<Result> DeleteChatAsync(
-            int userId, int chatId);
+            int userId, int id);
     }
 }

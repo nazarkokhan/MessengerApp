@@ -14,6 +14,8 @@ namespace MessengerApp.DAL.Entities.Authorization
 {
     public class User : IdentityUser<int>, IEntity<int>
     {
+        // public override int Id { get; set; }
+        
         [Required]
         [MaxLength(10)]
         public override string UserName { get; set; }
@@ -25,7 +27,9 @@ namespace MessengerApp.DAL.Entities.Authorization
         [MaxLength(512)]
         public string About { get; set; }
         
-        public ICollection<Contact> Contacts { get; set; }
+        public ICollection<Contact> UserContacts { get; set; }
+        
+        public ICollection<Contact> ContactUsers { get; set; }
 
         public ICollection<Message> Messages { get; set; }
 
@@ -44,7 +48,7 @@ namespace MessengerApp.DAL.Entities.Authorization
                 UserName,
                 About,
                 Email,
-                Contacts.Select(c => c.Id).ToList(),
+                UserContacts.Select(c => c.Id).ToList(),
                 Messages.Select(m => m.Id).ToList(),
                 ChatUsers.Select(cu => cu.ChatId).ToList()
             );

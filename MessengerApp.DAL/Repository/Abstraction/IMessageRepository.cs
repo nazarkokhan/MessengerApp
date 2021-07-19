@@ -9,10 +9,10 @@ namespace MessengerApp.DAL.Repository.Abstraction
     public interface IMessageRepository
     {
         Task<Result<Pager<MessageDto>>> GetMessagesInChatPageAsync(
-            int chatId, string? search, int page, int items);
+            int userId, int chatId, string? search, int page, int items);
 
         Task<Result<MessageDto>> EditMessageAsync(
-            int userId, int messageId, EditMessageDto editMessageDto);
+            int userId, EditMessageDto editMessageDto);
 
         Task<Result> DeleteMessageAsync(
             int userId, int messageId);

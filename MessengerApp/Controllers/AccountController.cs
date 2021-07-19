@@ -25,9 +25,10 @@ namespace MessengerApp.Controllers
         ) =>
             (await _accountService.CreateUserAndSendEmailTokenAsync(register)).ToActionResult();
 
-        [HttpGet("register")]
+        [HttpGet("register/{token}/{userId}")]
         public async Task<IActionResult> ConfirmRegistration(
-            string token, string userId
+            [FromQuery] string token,
+            [FromQuery] string userId
         ) =>
             (await _accountService.ConfirmRegistrationWithTokenAsync(token, userId)).ToActionResult();
 
@@ -40,7 +41,7 @@ namespace MessengerApp.Controllers
         [BearerAuthorize(Roles.Admin | Roles.User)]
         [HttpGet("profile")]
         public async Task<IActionResult> GetProfile(
-            ) =>
+        ) =>
             (await _accountService.GetProfile(User.GetUserId())).ToActionResult();
 
         [BearerAuthorize(Roles.Admin | Roles.User)]
@@ -51,9 +52,10 @@ namespace MessengerApp.Controllers
             (await _accountService.SendEmailResetTokenAsync(resetEmailDto, User.GetUserId())).ToActionResult();
 
         [BearerAuthorize(Roles.Admin | Roles.User)]
-        [HttpGet("reset-email")]
+        [HttpGet("reset-email/{token}/{newEmail}")]
         public async Task<IActionResult> ResetEmailAsync(
-            string token, string newEmail
+            [FromQuery] string token,
+            [FromQuery] string newEmail
         ) =>
             (await _accountService.ResetEmailAsync(token, newEmail, User.GetUserId())).ToActionResult();
 
@@ -68,5 +70,14 @@ namespace MessengerApp.Controllers
             TokenPasswordDto tokenPasswordDto
         ) =>
             (await _accountService.ResetPasswordAsync(tokenPasswordDto)).ToActionResult();
+
+        [HttpGet("{chatId:int}")]
+        public async Task<IActionResult> GetUsersInChat(
+            [FromQuery] int chatId,
+            [FromQuery] string? search,
+            [FromQuery] int page,
+            [FromQuery] int items
+        ) =>
+            (await _accountService.GetUsersInChatAsync(chatId, search, page, items)).ToActionResult();
     }
 }

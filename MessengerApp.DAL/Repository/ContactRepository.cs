@@ -87,7 +87,7 @@ namespace MessengerApp.DAL.Repository
 
                 await _db.Contacts.AddAsync(contact);
 
-                return await GetContactAsync(contact.UserId, contact.UserContactId);
+                return await GetContactAsync(contact.UserId, contact.UserContactId!.Value);
             }
             catch (Exception e)
             {

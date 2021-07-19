@@ -31,11 +31,11 @@ namespace MessengerApp.BLL.Tests
         }
 
         [Theory]
-        [InlineData("newUser", "newUser@gmail.com", "newAccess", "about", 1)]
+        [InlineData(1, "newUser", "newUser@gmail.com", "newAccess", "about")]
         public async Task EditUserAsync_EditUserDto_SuccessEditedUserReturned(
-            string newUserName, string newEmail, string newPassword, string about, int id)
+            int id, string newUserName, string newEmail, string newPassword, string about)
         {
-            var editUserDto = new EditUserDto(newUserName, newEmail, newPassword, about, id);
+            var editUserDto = new EditUserDto(id, newUserName, newEmail, newPassword, about);
 
             var userEntity = new User
             {
@@ -67,11 +67,11 @@ namespace MessengerApp.BLL.Tests
         }
 
         [Theory]
-        [InlineData("newUser", "newUser@gmail.com", "newAccess", "about", 1)]
+        [InlineData(1, "newUser", "newUser@gmail.com", "newAccess", "about")]
         public async Task EditUserAsync_EditUserDto_FailFromRepositoryReturned(
-            string newUserName, string newEmail, string newPassword, string about, int id)
+            int id, string newUserName, string newEmail, string newPassword, string about)
         {
-            var editUserDto = new EditUserDto(newUserName, newEmail, newPassword, about, id);
+            var editUserDto = new EditUserDto(id, newUserName, newEmail, newPassword, about);
 
             var userEntity = new User
             {
@@ -101,11 +101,11 @@ namespace MessengerApp.BLL.Tests
         }
 
         [Theory]
-        [InlineData("newUser", "newUser@gmail.com", "newAccess", "about", 1)]
+        [InlineData(1, "newUser", "newUser@gmail.com", "newAccess", "about")]
         public async Task EditUserAsync_EditUserDto_FailRemovingPasswordReturned(
-            string newUserName, string newEmail, string newPassword, string about, int id)
+            int id, string newUserName, string newEmail, string newPassword, string about)
         {
-            var editUserDto = new EditUserDto(newUserName, newEmail, newPassword, about, id);
+            var editUserDto = new EditUserDto(id, newUserName, newEmail, newPassword, about);
 
             var userEntity = new User
             {
@@ -133,11 +133,11 @@ namespace MessengerApp.BLL.Tests
         }
 
         [Theory]
-        [InlineData("newUser", "newUser@gmail.com", "newAccess", "about", 1)]
+        [InlineData(1, "newUser", "newUser@gmail.com", "newAccess", "about")]
         public async Task EditUserAsync_EditUserDto_FailAddingPasswordReturned(
-            string newUserName, string newEmail, string newPassword, string about, int id)
+            int id, string newUserName, string newEmail, string newPassword, string about)
         {
-            var editUserDto = new EditUserDto(newUserName, newEmail, newPassword, about, id);
+            var editUserDto = new EditUserDto(id, newUserName, newEmail, newPassword, about);
 
             var userEntity = new User
             {
@@ -169,11 +169,11 @@ namespace MessengerApp.BLL.Tests
         }
 
         [Theory]
-        [InlineData("newUser", "newUser@gmail.com", "newAccess", "about", 1)]
+        [InlineData(1, "newUser", "newUser@gmail.com", "newAccess", "about")]
         public async Task EditUserAsync_EditUserDto_FailUnexpectedReturned(
-            string newUserName, string newEmail, string newPassword, string about, int id)
+            int id, string newUserName, string newEmail, string newPassword, string about)
         {
-            var editUserDto = new EditUserDto(newUserName, newEmail, newPassword, about, id);
+            var editUserDto = new EditUserDto(id, newUserName, newEmail, newPassword, about);
 
             var userEntity = new User
             {

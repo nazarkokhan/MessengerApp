@@ -36,12 +36,7 @@ namespace MessengerApp.BLL.Services
             _emailService = emailService;
             _unitOfWork = unitOfWork;
         }
-
-        public Task<Result<Pager<UserDto>>> GetUsersInChatAsync(
-            int chatId, string? search, int page, int items)
-        {
-            return _unitOfWork.Users.GetUsersInChatAsync(chatId, search, page, items);
-        }
+        
         public async Task<Result> CreateUserAndSendEmailTokenAsync(RegisterDto register)
         {
             try
@@ -64,7 +59,7 @@ namespace MessengerApp.BLL.Services
                     HttpUtility.UrlEncode(await _userManager.GenerateEmailConfirmationTokenAsync(userEntity));
 
                 var pureLink =
-                    $"https://localhost:5001/api/account/register?token={emailConfirmationToken}&userId={userEntity.Id}";
+                    $"https://localhost:5001/api/account/register/{emailConfirmationToken}/{userEntity.Id}";
 
                 // var htmlLink =
                 //     "<a class=\"link\" href=\"https://localhost:5001/api/account/register?" +
@@ -199,8 +194,8 @@ namespace MessengerApp.BLL.Services
 
                 var pureLink =
                     "https://localhost:5001/api/account/reset-email" +
-                    $"?token={changeEmailToken}" +
-                    $"&newEmail={resetEmailDto.NewEmail}";
+                    $"/{changeEmailToken}" +
+                    $"/{resetEmailDto.NewEmail}";
 
                 await _emailService
                     .SendAsync(
@@ -306,6 +301,12 @@ namespace MessengerApp.BLL.Services
             {
                 return Result.CreateFailed(CommonResultConstants.Unexpected, e);
             }
+        }
+        
+        public Task<Result<Pager<UserDto>>> GetUsersInChatAsync(
+            int chatId, string? search, int page, int items)
+        {
+            return _unitOfWork.Users.GetUsersInChatAsync(chatId, search, page, items);
         }
     }
 }

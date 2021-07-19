@@ -23,7 +23,7 @@ namespace MessengerApp.DAL.Repository
         }
 
         public async Task<Result<Pager<MessageDto>>> GetMessagesInChatPageAsync(
-            int chatId, string? search, int page, int items)
+            int userId, int chatId, string? search, int page, int items)
         {
             try
             {
@@ -54,12 +54,12 @@ namespace MessengerApp.DAL.Repository
         }
 
         public async Task<Result<MessageDto>> EditMessageAsync(
-            int userId, int messageId, EditMessageDto editMessageDto)
+            int userId, EditMessageDto editMessageDto)
         {
             try
             {
                 var message = await _db.Messages
-                    .FirstOrDefaultAsync(m => m.Id == messageId);
+                    .FirstOrDefaultAsync(m => m.Id == editMessageDto.Id);
                 
                 if(message is null)
                     return Result<MessageDto>.CreateFailed(MessageResultConstants.MessageNotFount);

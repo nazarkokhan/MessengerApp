@@ -102,13 +102,13 @@ namespace MessengerApp.BLL.Tests
         }
 
         [Theory]
-        [InlineData("admin", "admin@gmail.com", "adminAccess", "about", 9878)]
-        [InlineData("user", "user@gmail.com", "userAccess", "about", 4123)]
-        [InlineData("newUser", "newUser@gmail.com", "newAccess", "about", 1)]
+        [InlineData(9878, "admin", "admin@gmail.com", "adminAccess", "about")]
+        [InlineData(4123, "user", "user@gmail.com", "userAccess", "about")]
+        [InlineData(1, "newUser", "newUser@gmail.com", "newAccess", "about")]
         public async Task EditUserAsync_EditUserDto_SuccessEditedUserReturned(
-            string newUserName, string newEmail, string newPassword, string about, int id)
+            int id, string newUserName, string newEmail, string newPassword, string about)
         {
-            var userDto = new EditUserDto(newUserName, newEmail, newPassword, about, id);
+            var userDto = new EditUserDto(id, newUserName, newEmail, newPassword, about);
 
             var actual = await _userRepository.EditUserAsync(userDto);
 
@@ -122,13 +122,13 @@ namespace MessengerApp.BLL.Tests
         }
 
         [Theory]
-        [InlineData("admin", "admin@gmail.com", "adminAccess", "about", 9878)]
-        [InlineData("user", "user@gmail.com", "userAccess", "about", 4123)]
-        [InlineData("newUser", "newUser@gmail.com", "newAccess", "about", 1)]
+        [InlineData(9878, "admin", "admin@gmail.com", "adminAccess", "about")]
+        [InlineData(4123, "user", "user@gmail.com", "userAccess", "about")]
+        [InlineData(1, "newUser", "newUser@gmail.com", "newAccess", "about")]
         public async Task EditUserAsync_EditUserDto_FailUserNotFoundReturned(
-            string newUserName, string newEmail, string newPassword, string about, int id)
+            int id, string newUserName, string newEmail, string newPassword, string about)
         {
-            var userDto = new EditUserDto(newUserName, newEmail, newPassword, about, id);
+            var userDto = new EditUserDto(id, newUserName, newEmail, newPassword, about);
 
             var actual = await _userRepository.EditUserAsync(userDto);
 

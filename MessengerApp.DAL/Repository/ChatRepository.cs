@@ -86,11 +86,11 @@ namespace MessengerApp.DAL.Repository
         }
 
         public async Task<Result<ChatDto>> GetChatAsync(
-            int chatId)
+            int id)
         {
             try
             {
-                var chatEntity = await _db.Chats.FirstOrDefaultAsync(c => c.Id == chatId);
+                var chatEntity = await _db.Chats.FirstOrDefaultAsync(c => c.Id == id);
 
                 return chatEntity is null
                     ? Result<ChatDto>.CreateFailed(ChatResultConstants.ChatNotFound, new NullReferenceException())
@@ -124,11 +124,11 @@ namespace MessengerApp.DAL.Repository
         }
 
         public async Task<Result<ChatDto>> EditChatAsync(
-            int userId, int chatId, EditChatDto editChatDto)
+            int userId, EditChatDto editChatDto)
         {
             try
             {
-                var chatEntity = await _db.Chats.FirstOrDefaultAsync(c => c.Id == chatId);
+                var chatEntity = await _db.Chats.FirstOrDefaultAsync(c => c.Id == editChatDto.Id);
 
                 if (chatEntity is null)
                     Result.CreateFailed(ChatResultConstants.ChatNotFound, new NullReferenceException());
@@ -146,11 +146,11 @@ namespace MessengerApp.DAL.Repository
         }
 
         public async Task<Result> DeleteChatAsync(
-            int userId, int chatId)
+            int userId, int id)
         {
             try
             {
-                var chatEntity = await _db.Chats.FirstOrDefaultAsync(c => c.Id == chatId);
+                var chatEntity = await _db.Chats.FirstOrDefaultAsync(c => c.Id == id);
 
                 if (chatEntity is null)
                     Result.CreateFailed(ChatResultConstants.ChatNotFound, new NullReferenceException());

@@ -3,14 +3,15 @@ namespace MessengerApp.Core.DTO.User
 {
     public class EditUserDto
     {
-        public EditUserDto(string newUserName, string newEmail, string newPassword, string about, int id)
+        public EditUserDto(int id, string newUserName, string newEmail, string newPassword, string about)
         {
+            Id = id;
             NewUserName = newUserName;
             NewEmail = newEmail;
             NewPassword = newPassword;
             About = about;
-            Id = id;
         }
+        public int Id { get; }
 
         public string NewUserName { get; }
         
@@ -19,7 +20,5 @@ namespace MessengerApp.Core.DTO.User
         public string NewPassword { get; }
 
         public string About { get; set; }
-
-        public int Id { get; }
     }
 }
