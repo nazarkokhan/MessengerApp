@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
 using MessengerApp.BLL.Services.Abstraction;
 using MessengerApp.Core.DTO.Authorization;
 using MessengerApp.Core.DTO.Authorization.Reset;
@@ -27,8 +28,8 @@ namespace MessengerApp.Controllers
 
         [HttpGet("register/{token}/{userId}")]
         public async Task<IActionResult> ConfirmRegistration(
-            [FromQuery] string token,
-            [FromQuery] string userId
+            string token,
+            [Range(0, int.MaxValue)] string userId
         ) =>
             (await _accountService.ConfirmRegistrationWithTokenAsync(token, userId)).ToActionResult();
 
@@ -71,12 +72,12 @@ namespace MessengerApp.Controllers
         ) =>
             (await _accountService.ResetPasswordAsync(tokenPasswordDto)).ToActionResult();
 
-        [HttpGet("{chatId:int}")]
+        [HttpGet("chat-members/{chatId:int}")]
         public async Task<IActionResult> GetUsersInChat(
-            [FromQuery] int chatId,
+            [Range(1, int.MaxValue)] int chatId,
             [FromQuery] string? search,
-            [FromQuery] int page,
-            [FromQuery] int items
+            [FromQuery] [Range(1, int.MaxValue)] int page = 1,
+            [FromQuery] int items = 5
         ) =>
             (await _accountService.GetUsersInChatAsync(chatId, search, page, items)).ToActionResult();
     }

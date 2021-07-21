@@ -37,8 +37,14 @@ namespace MessengerApp.DAL.Repository
                     .TakePage(page, items);
 
                 if (!string.IsNullOrWhiteSpace(search))
+                {
                     userEntities = userEntities
                         .Where(u => u.UserName.Contains(search) || u.Email.Contains(search));
+                    
+                    totalCount = await _db.Users
+                        .Where(u => u.UserName.Contains(search) || u.Email.Contains(search))
+                        .CountAsync();
+                }
 
                 return Result<Pager<UserDto>>.CreateSuccess(
                     new Pager<UserDto>(
@@ -58,25 +64,20 @@ namespace MessengerApp.DAL.Repository
         {
             try
             {
-                var totalCount = await _db.ChatUsers
-                    .Where(cu => cu.ChatId == chatId)
-                    .CountAsync();
-
                 var userEntities = _db.ChatUsers
                     .Include(cu => cu.User)
+                    .OrderBy(cu => cu.User.UserName)
                     .Where(cu => cu.ChatId == chatId)
-                    .Select(cu => cu.User.MapUserDto())
-                    .OrderBy(u => u.UserName)
-                    .TakePage(page, items);
-
+                    .Select(cu => cu.User);
+                
                 if (!string.IsNullOrWhiteSpace(search))
                     userEntities = userEntities
                         .Where(u => u.UserName.Contains(search) || u.Email.Contains(search));
 
                 return Result<Pager<UserDto>>.CreateSuccess(
                     new Pager<UserDto>(
-                        await userEntities.ToListAsync(),
-                        totalCount
+                        await userEntities.TakePage(page, items).Select(u => u.MapUserDto()).ToListAsync(),
+                        await userEntities.CountAsync()
                     )
                 );
             }

@@ -7,16 +7,12 @@ using MessengerApp.DAL.Entities.Authorization;
 
 namespace MessengerApp.DAL.Entities
 {
-    public class Contact : EntityBase
+    public class Contact
     {
-        // [ForeignKey("User")]
         public int UserId { get; set; }
-        // [ForeignKey("UserId")]
         public User User { get; set; }
 
-        // [ForeignKey("UserContact")]
-        public int? UserContactId { get; set; }
-        // [ForeignKey("UserContactId")]
+        public int UserContactId { get; set; }
         public User UserContact { get; set; }
 
         public void MapEditContact(EditContactDto editContactDto)

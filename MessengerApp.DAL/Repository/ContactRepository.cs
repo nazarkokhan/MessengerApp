@@ -30,6 +30,7 @@ namespace MessengerApp.DAL.Repository
             {
                 var contacts = await _db.Contacts
                     .Where(c => c.UserId == userId)
+                    .OrderBy(c => c.UserId)
                     .Select(c => c.User)
                     .Select(u => u.MapUserContactDto())
                     .ToListAsync();
@@ -87,7 +88,7 @@ namespace MessengerApp.DAL.Repository
 
                 await _db.Contacts.AddAsync(contact);
 
-                return await GetContactAsync(contact.UserId, contact.UserContactId!.Value);
+                return await GetContactAsync(contact.UserId, contact.UserContactId);
             }
             catch (Exception e)
             {

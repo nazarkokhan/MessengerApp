@@ -28,13 +28,9 @@ namespace MessengerApp.DAL.Repository
         {
             try
             {
-                var totalCount = await _db.Chats
-                    .CountAsync();
-
                 var chatEntities = _db.Chats
-                    .Select(c => c.MapChatDto())
                     .OrderBy(c => c.Name)
-                    .TakePage(page, items);
+                    .AsQueryable();
 
                 if (!string.IsNullOrWhiteSpace(search))
                     chatEntities = chatEntities
@@ -42,8 +38,11 @@ namespace MessengerApp.DAL.Repository
 
                 return Result<Pager<ChatDto>>.CreateSuccess(
                     new Pager<ChatDto>(
-                        await chatEntities.ToListAsync(),
-                        totalCount
+                        await chatEntities
+                            .TakePage(page, items)
+                            .Select(c => c.MapChatDto())
+                            .ToListAsync(),
+                        await chatEntities.CountAsync()
                     )
                 );
             }
@@ -58,24 +57,23 @@ namespace MessengerApp.DAL.Repository
         {
             try
             {
-                var totalCount = await _db.ChatUsers
-                    .Where(cu => cu.UserId == userId)
-                    .CountAsync();
-
                 var chatEntities = _db.ChatUsers
+                    .Include(cu => cu.Chat)
+                    .OrderBy(cu => cu.Chat.Name)
                     .Where(cu => cu.UserId == userId)
-                    .Select(cu => cu.Chat.MapChatDto())
-                    .OrderBy(c => c.Name)
-                    .TakePage(page, items);
-
+                    .Select(cu => cu.Chat);
+                
                 if (!string.IsNullOrWhiteSpace(search))
                     chatEntities = chatEntities
                         .Where(c => c.Name.Contains(search));
 
                 return Result<Pager<ChatDto>>.CreateSuccess(
                     new Pager<ChatDto>(
-                        await chatEntities.ToListAsync(),
-                        totalCount
+                        await chatEntities
+                            .TakePage(page, items)
+                            .Select(c => c.MapChatDto())
+                            .ToListAsync(),
+                        await chatEntities.CountAsync()
                     )
                 );
             }

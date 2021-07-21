@@ -45,6 +45,7 @@ namespace MessengerApp.BLL.Services
                 {
                     Email = register.Email,
                     UserName = register.UserName,
+                    About = string.Empty
                 };
 
                 if ((await _unitOfWork.Users.UserExistsAsync(register.Email)).Data)
@@ -55,8 +56,10 @@ namespace MessengerApp.BLL.Services
                 if (!createResult.Succeeded)
                     return Result.CreateFailed(AccountResultConstants.ErrorCreatingUser);
 
+                var token = await _userManager.GenerateEmailConfirmationTokenAsync(userEntity);
+
                 var emailConfirmationToken =
-                    HttpUtility.UrlEncode(await _userManager.GenerateEmailConfirmationTokenAsync(userEntity));
+                    HttpUtility.UrlEncode(token);
 
                 var pureLink =
                     $"https://localhost:5001/api/account/register/{emailConfirmationToken}/{userEntity.Id}";
@@ -84,9 +87,11 @@ namespace MessengerApp.BLL.Services
         {
             try
             {
+                var decodedToken = token.Replace("%2f", "/");
+                
                 var userEntity = await _userManager.FindByIdAsync(userId);
 
-                var tokenIsValid = await _userManager.ConfirmEmailAsync(userEntity, token);
+                var tokenIsValid = await _userManager.ConfirmEmailAsync(userEntity, decodedToken);
 
                 if (!tokenIsValid.Succeeded)
                     return Result.CreateFailed(AccountResultConstants.InvalidRegistrationToken);
@@ -119,10 +124,21 @@ namespace MessengerApp.BLL.Services
                         AccountResultConstants.UserNotFound,
                         new NullReferenceException()
                     );
-
+                
                 if (!await _userManager.CheckPasswordAsync(user, userInput.Password))
                     return Result<Token>.CreateFailed(AccountResultConstants.InvalidUserNameOrPassword);
 
+                if(!user.EmailConfirmed)
+                    return Result<Token>.CreateFailed(AccountResultConstants.UserEmailNotConfirmed);
+                
+                var userRole = await _userManager.GetRolesAsync(user);
+                
+                if(userRole is null)
+                    return Result<Token>.CreateFailed(
+                        AccountResultConstants.UserDoesntHaveRole,
+                        new NullReferenceException()
+                    );
+                
                 var timeNow = DateTime.Now;
 
                 var jwt = new JwtSecurityToken(
@@ -133,7 +149,7 @@ namespace MessengerApp.BLL.Services
                     {
                         new(ClaimTypes.Email, user.Email),
                         new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                        new(ClaimTypes.Role, (await _userManager.GetRolesAsync(user)).FirstOrDefault()!)
+                        new(ClaimTypes.Role, userRole.FirstOrDefault()!)
                     },
                     expires: timeNow.Add(TimeSpan.FromMinutes(AuthOptions.Lifetime)),
                     signingCredentials: new SigningCredentials(AuthOptions.SymmetricSecurityKey,

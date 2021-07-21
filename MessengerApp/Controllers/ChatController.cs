@@ -38,7 +38,7 @@ namespace MessengerApp.Controllers
 
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetChat(
-            [FromQuery] int id
+            int id
         ) =>
             (await _chatService.GetChatAsync(id)).ToActionResult();
 
@@ -56,7 +56,7 @@ namespace MessengerApp.Controllers
 
         [HttpDelete]
         public async Task<IActionResult> DeleteChat(
-            [FromQuery] [Range(1, int.MaxValue)] int id
+            [Range(1, int.MaxValue)] int id
         ) =>
             (await _chatService.DeleteChatAsync(User.GetUserId(), id)).ToActionResult();
     }

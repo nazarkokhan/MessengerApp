@@ -56,5 +56,15 @@
         /// Represents message when user sent valid code for resetting, but it is already expired.
         /// </summary>
         public const string ExpiredResetPasswordToken = "EXPIRED_RESET_TOKEN";
+        
+        /// <summary>
+        /// Represents message when the user sent valid code for resetting, but it is already expired.
+        /// </summary>
+        public const string UserEmailNotConfirmed = "USER_EMAIL_NOT_CONFIRMED";
+        
+        /// <summary>
+        /// Represents message when the user sent valid code for resetting, but it is already expired.
+        /// </summary>
+        public const string UserDoesntHaveRole = "USER_DOESNT_HAVE_ROLE";
     }
 }

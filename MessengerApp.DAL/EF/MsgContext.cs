@@ -28,24 +28,21 @@ namespace MessengerApp.DAL.EF
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-            
-            // builder.Entity<User>()
-            //     .On
-                
+
             builder.Entity<Contact>()
                 .HasKey(c => new {c.UserId, c.UserContactId});
 
             builder.Entity<Contact>()
                 .HasOne<User>(c => c.User)
                 .WithMany(u => u.UserContacts)
-                .HasForeignKey(c => c.UserId);
+                .HasForeignKey(c => c.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
             
             builder.Entity<Contact>()
                 .HasOne<User>(c => c.UserContact)
                 .WithMany(u => u.ContactUsers)
                 .HasForeignKey(c => c.UserContactId)
-                .OnDelete(DeleteBehavior.SetNull);
-
+                .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }

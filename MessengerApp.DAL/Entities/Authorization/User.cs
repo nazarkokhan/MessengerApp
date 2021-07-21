@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
 using MessengerApp.Core.DTO.Contact;
 using MessengerApp.Core.DTO.User;
@@ -14,8 +14,6 @@ namespace MessengerApp.DAL.Entities.Authorization
 {
     public class User : IdentityUser<int>, IEntity<int>
     {
-        // public override int Id { get; set; }
-        
         [Required]
         [MaxLength(10)]
         public override string UserName { get; set; }
@@ -24,6 +22,7 @@ namespace MessengerApp.DAL.Entities.Authorization
         [DataType(DataType.EmailAddress)]
         public override string Email { get; set; }
         
+        [AllowNull]
         [MaxLength(512)]
         public string About { get; set; }
         
@@ -47,10 +46,7 @@ namespace MessengerApp.DAL.Entities.Authorization
             (
                 UserName,
                 About,
-                Email,
-                UserContacts.Select(c => c.Id).ToList(),
-                Messages.Select(m => m.Id).ToList(),
-                ChatUsers.Select(cu => cu.ChatId).ToList()
+                Email
             );
         }
         
