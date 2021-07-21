@@ -14,26 +14,21 @@ namespace MessengerApp.DAL.Entities.Authorization
 {
     public class User : IdentityUser<int>, IEntity<int>
     {
-        [Required]
-        [MaxLength(10)]
-        public override string UserName { get; set; }
+        [Required] [MaxLength(10)] public override string UserName { get; set; }
 
         [Required]
         [DataType(DataType.EmailAddress)]
         public override string Email { get; set; }
-        
-        [AllowNull]
-        [MaxLength(512)]
-        public string About { get; set; }
-        
+
+        [AllowNull] [MaxLength(512)] public string About { get; set; }
+
         public ICollection<Contact> UserContacts { get; set; }
-        
+
         public ICollection<Contact> ContactUsers { get; set; }
 
         public ICollection<Message> Messages { get; set; }
 
-        [DataMember]
-        public ICollection<ChatUser> ChatUsers { get; set; }
+        [DataMember] public ICollection<ChatUser> ChatUsers { get; set; }
 
         public ContactDto MapUserContactDto()
         {
@@ -42,14 +37,9 @@ namespace MessengerApp.DAL.Entities.Authorization
 
         public UserDto MapUserDto()
         {
-            return new UserDto
-            (
-                UserName,
-                About,
-                Email
-            );
+            return new UserDto(UserName, About, Email);
         }
-        
+
         public void MapEditUserDto(EditUserDto editUserDto)
         {
             Email = editUserDto.NewEmail;

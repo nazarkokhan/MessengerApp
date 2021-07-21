@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using MessengerApp.Core.DTO;
 using MessengerApp.Core.DTO.Contact;
+using MessengerApp.Core.Extensions;
 using MessengerApp.Core.ResultConstants;
 using MessengerApp.Core.ResultModel;
 using MessengerApp.Core.ResultModel.Generics;
@@ -28,21 +29,30 @@ namespace MessengerApp.DAL.Repository
         {
             try
             {
-                var contacts = await _db.Contacts
-                    .Where(c => c.UserId == userId)
+                var contactEntities = _db.Contacts
+                    .Include(c => c.UserContact)
                     .OrderBy(c => c.UserId)
-                    .Select(c => c.User)
-                    .Select(u => u.MapUserContactDto())
-                    .ToListAsync();
+                    .Where(c => c.UserId == userId)
+                    .Select(c => c.UserContact);
+                
+                if (!string.IsNullOrWhiteSpace(search))
+                    contactEntities = contactEntities
+                        .Where(c => c.UserName.Contains(search));
 
-                if (!contacts.Any())
+                if (!contactEntities.Any())
                     return Result<Pager<ContactDto>>.CreateFailed(
                         ContactResultConstants.ContactNotFount,
                         new NullReferenceException()
                     );
 
                 return Result<Pager<ContactDto>>.CreateSuccess(
-                    new Pager<ContactDto>(contacts, contacts.Count)
+                    new Pager<ContactDto>(
+                        await contactEntities
+                            .TakePage(page, items)
+                            .Select(u => u.MapUserContactDto())
+                            .ToListAsync(),
+                        await contactEntities.CountAsync()
+                    )
                 );
             }
             catch (Exception e)
@@ -56,11 +66,15 @@ namespace MessengerApp.DAL.Repository
         {
             try
             {
-                var contactEntity = await _db.Contacts.FindAsync(new Contact
+                var conEntity = new Contact
                 {
                     UserId = userId,
                     UserContactId = userContactId
-                });
+                };
+                
+                var contactEntity = await _db.Contacts
+                    .Include(c => c.UserContact)
+                    .FirstOrDefaultAsync(c => c.UserId == userId && c.UserContactId == userContactId);
 
                 if (contactEntity is null)
                     return Result<ContactDto>.CreateFailed(
@@ -68,9 +82,7 @@ namespace MessengerApp.DAL.Repository
                         new NullReferenceException()
                     );
 
-                var contactDto = contactEntity.User.MapUserContactDto();
-
-                return Result<ContactDto>.CreateSuccess(contactDto);
+                return Result<ContactDto>.CreateSuccess(contactEntity.UserContact.MapUserContactDto());
             }
             catch (Exception e)
             {

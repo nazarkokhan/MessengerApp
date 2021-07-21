@@ -20,7 +20,7 @@ namespace MessengerApp.Controllers
             _contactService = contactService;
         }
 
-        [HttpGet()]
+        [HttpGet]
         public async Task<IActionResult> GetContactsPage(
             [FromQuery] string? search,
             [FromQuery] [Range(1, int.MaxValue)] int page = 1,
@@ -30,17 +30,17 @@ namespace MessengerApp.Controllers
 
         [HttpGet("{userContactId:int}")]
         public async Task<IActionResult> GetContact(
-            [FromQuery] int userContactId
+            int userContactId
         ) =>
             (await _contactService.GetContactAsync(User.GetUserId(), userContactId)).ToActionResult();
 
-        [HttpPost()]
+        [HttpPost]
         public async Task<IActionResult> CreateContact(
             CreateContactDto createContactDto
         ) =>
             (await _contactService.CreateContactAsync(User.GetUserId(), createContactDto)).ToActionResult();
 
-        [HttpPut()]
+        [HttpPut]
         public async Task<IActionResult> EditContact(
             EditContactDto editContactDto
         ) =>
@@ -48,7 +48,7 @@ namespace MessengerApp.Controllers
 
         [HttpDelete("{contactId:int}")]
         public async Task<IActionResult> DeleteContact(
-            [FromQuery] int contactId
+            int contactId
         ) =>
             (await _contactService.DeleteContactAsync(User.GetUserId(), contactId)).ToActionResult();
     }
