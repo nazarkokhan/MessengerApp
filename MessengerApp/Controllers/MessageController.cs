@@ -22,7 +22,7 @@ namespace MessengerApp.Controllers
 
         [HttpGet("{chatId:int}")]
         public async Task<IActionResult> GetMessagesInChat(
-            [FromQuery] int chatId,
+            int chatId,
             [FromQuery] string? search,
             [FromQuery] [Range(1, int.MaxValue)] int page = 1,
             [FromQuery] int items = 5
@@ -30,16 +30,26 @@ namespace MessengerApp.Controllers
             (await _messageService.GetMessagesInChatPageAsync(User.GetUserId(), chatId, search, page, items))
             .ToActionResult();
 
-        [HttpPut()]
+        [HttpPost("{chatId:int}")]
+        public async Task<IActionResult> CreateMessage(
+            [Range(1, int.MaxValue)] int chatId,
+            CreateMessageDto createMessageDto
+        ) =>
+            (await _messageService.CreateMessageAsync(User.GetUserId(), chatId, createMessageDto))
+            .ToActionResult();
+
+        [HttpPut]
         public async Task<IActionResult> EditMessage(
             EditMessageDto editMessageDto
         ) =>
-            (await _messageService.EditMessageAsync(User.GetUserId(), editMessageDto)).ToActionResult();
+            (await _messageService.EditMessageAsync(User.GetUserId(), editMessageDto))
+            .ToActionResult();
 
         [HttpDelete("{messageId:int}")]
         public async Task<IActionResult> DeleteMessage(
-            [FromQuery] int messageId
+            [Range(1, long.MaxValue)] long messageId
         ) =>
-            (await _messageService.DeleteMessageAsync(User.GetUserId(), messageId)).ToActionResult();
+            (await _messageService.DeleteMessageAsync(User.GetUserId(), messageId))
+            .ToActionResult();
     }
 }

@@ -12,18 +12,17 @@ namespace MessengerApp.DAL.Entities
 {
     public class Message : IEntity<long>
     {
-        private DateTime _dateTime;
+        public Message()
+        {
+            DateTime = DateTime.Now;
+        }
         
         public long Id { get; set; }
         
         [Required]
         public string Body { get; set; }
 
-        public DateTime DateTime
-        {
-            get => _dateTime;
-            set => _dateTime = DateTime.UtcNow;
-        }
+        public DateTime DateTime { get; set; }
 
         [Required]
         public int UserId { get; set; }
@@ -37,7 +36,7 @@ namespace MessengerApp.DAL.Entities
 
         public MessageDto MapMessageDto()
         {
-            return new MessageDto(Body, DateTime, UserId, ChatId);
+            return new MessageDto(Id, Body, DateTime, UserId, ChatId);
         }
         public void MapEditMessageDto(EditMessageDto editMessageDto)
         {

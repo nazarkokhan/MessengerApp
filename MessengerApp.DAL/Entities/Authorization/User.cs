@@ -20,7 +20,8 @@ namespace MessengerApp.DAL.Entities.Authorization
         [DataType(DataType.EmailAddress)]
         public override string Email { get; set; }
 
-        [AllowNull] [MaxLength(512)] public string About { get; set; }
+        [MaxLength(512)] 
+        public string? About { get; set; }
 
         public ICollection<Contact> UserContacts { get; set; }
 
@@ -32,12 +33,12 @@ namespace MessengerApp.DAL.Entities.Authorization
 
         public ContactDto MapUserContactDto()
         {
-            return new ContactDto(UserName, About, Email);
+            return new ContactDto(Id, UserName, About, Email);
         }
 
         public UserDto MapUserDto()
         {
-            return new UserDto(UserName, About, Email);
+            return new UserDto(Id, UserName, About, Email);
         }
 
         public void MapEditUserDto(EditUserDto editUserDto)

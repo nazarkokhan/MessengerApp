@@ -26,7 +26,8 @@ namespace MessengerApp.Controllers
             [FromQuery] [Range(1, int.MaxValue)] int page = 1,
             [FromQuery] int items = 5
         ) =>
-            (await _chatService.GetChatsPageAsync(search, page, items)).ToActionResult();
+            (await _chatService.GetChatsPageAsync(search, page, items))
+            .ToActionResult();
 
         [HttpGet("my")]
         public async Task<IActionResult> GetUserChatsPage(
@@ -34,30 +35,35 @@ namespace MessengerApp.Controllers
             [FromQuery] [Range(1, int.MaxValue)] int page = 1,
             [FromQuery] int items = 5
         ) =>
-            (await _chatService.GetUserChatsPageAsync(User.GetUserId(), search, page, items)).ToActionResult();
+            (await _chatService.GetUserChatsPageAsync(User.GetUserId(), search, page, items))
+            .ToActionResult();
 
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetChat(
-            int id
+            [Range(1, int.MaxValue)] int id
         ) =>
-            (await _chatService.GetChatAsync(id)).ToActionResult();
+            (await _chatService.GetChatAsync(id))
+            .ToActionResult();
 
         [HttpPost]
         public async Task<IActionResult> CreateChat(
             CreateChatDto createChatDto
         ) =>
-            (await _chatService.CreateChatAsync(User.GetUserId(), createChatDto)).ToActionResult();
+            (await _chatService.CreateChatAsync(User.GetUserId(), createChatDto))
+            .ToActionResult();
 
         [HttpPut]
         public async Task<IActionResult> EditChat(
             EditChatDto editChatDto
         ) =>
-            (await _chatService.EditChatAsync(User.GetUserId(), editChatDto)).ToActionResult();
+            (await _chatService.EditChatAsync(User.GetUserId(), editChatDto))
+            .ToActionResult();
 
         [HttpDelete]
         public async Task<IActionResult> DeleteChat(
             [Range(1, int.MaxValue)] int id
         ) =>
-            (await _chatService.DeleteChatAsync(User.GetUserId(), id)).ToActionResult();
+            (await _chatService.DeleteChatAsync(User.GetUserId(), id))
+            .ToActionResult();
     }
 }

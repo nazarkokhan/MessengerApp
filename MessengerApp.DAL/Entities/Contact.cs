@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using MessengerApp.Core.DTO.Contact;
-using MessengerApp.DAL.Entities.Abstract;
+﻿using MessengerApp.Core.DTO.Contact;
 using MessengerApp.DAL.Entities.Authorization;
 // ReSharper disable All
 #pragma warning disable 8618

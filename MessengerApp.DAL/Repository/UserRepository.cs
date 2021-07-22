@@ -28,28 +28,21 @@ namespace MessengerApp.DAL.Repository
         {
             try
             {
-                var totalCount = await _db.Users
-                    .CountAsync();
-
                 var userEntities = _db.Users
-                    .Select(u => u.MapUserDto())
                     .OrderBy(a => a.UserName)
-                    .TakePage(page, items);
+                    .AsQueryable();
 
                 if (!string.IsNullOrWhiteSpace(search))
-                {
                     userEntities = userEntities
                         .Where(u => u.UserName.Contains(search) || u.Email.Contains(search));
-                    
-                    totalCount = await _db.Users
-                        .Where(u => u.UserName.Contains(search) || u.Email.Contains(search))
-                        .CountAsync();
-                }
 
                 return Result<Pager<UserDto>>.CreateSuccess(
                     new Pager<UserDto>(
-                        await userEntities.ToListAsync(),
-                        totalCount
+                        await userEntities
+                            .TakePage(page, items)
+                            .Select(u => u.MapUserDto())
+                            .ToListAsync(),
+                        await userEntities.CountAsync()
                     )
                 );
             }
@@ -76,7 +69,10 @@ namespace MessengerApp.DAL.Repository
 
                 return Result<Pager<UserDto>>.CreateSuccess(
                     new Pager<UserDto>(
-                        await userEntities.TakePage(page, items).Select(u => u.MapUserDto()).ToListAsync(),
+                        await userEntities
+                            .TakePage(page, items)
+                            .Select(u => u.MapUserDto())
+                            .ToListAsync(),
                         await userEntities.CountAsync()
                     )
                 );

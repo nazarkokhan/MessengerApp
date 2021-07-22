@@ -122,8 +122,7 @@ namespace MessengerApp.DAL.Repository
                     var user = new User
                     {
                         Email = u.Email,
-                        UserName = u.UserName,
-                        About = "no data"
+                        UserName = u.UserName
                     };
 
                     await _userManager.CreateAsync(user, u.Password);

@@ -2,11 +2,14 @@
 {
     public class ChatDto
     {
-        public ChatDto(string name)
+        public ChatDto(int id, string name)
         {
+            Id = id;
             Name = name;
         }
 
+        public int Id { get; }
+        
         public string Name { get; }
     }
 }

@@ -26,30 +26,35 @@ namespace MessengerApp.Controllers
             [FromQuery] [Range(1, int.MaxValue)] int page = 1,
             [FromQuery] int items = 5
         ) =>
-            (await _contactService.GetContactsPageAsync(User.GetUserId(), search, page, items)).ToActionResult();
+            (await _contactService.GetContactsPageAsync(User.GetUserId(), search, page, items))
+            .ToActionResult();
 
         [HttpGet("{userContactId:int}")]
         public async Task<IActionResult> GetContact(
-            int userContactId
+            [Range(1, int.MaxValue)] int userContactId
         ) =>
-            (await _contactService.GetContactAsync(User.GetUserId(), userContactId)).ToActionResult();
+            (await _contactService.GetContactAsync(User.GetUserId(), userContactId))
+            .ToActionResult();
 
         [HttpPost]
         public async Task<IActionResult> CreateContact(
             CreateContactDto createContactDto
         ) =>
-            (await _contactService.CreateContactAsync(User.GetUserId(), createContactDto)).ToActionResult();
+            (await _contactService.CreateContactAsync(User.GetUserId(), createContactDto))
+            .ToActionResult();
 
         [HttpPut]
         public async Task<IActionResult> EditContact(
             EditContactDto editContactDto
         ) =>
-            (await _contactService.EditContactAsync(User.GetUserId(), editContactDto)).ToActionResult();
+            (await _contactService.EditContactAsync(User.GetUserId(), editContactDto))
+            .ToActionResult();
 
         [HttpDelete("{contactId:int}")]
         public async Task<IActionResult> DeleteContact(
-            int contactId
+            [Range(1, int.MaxValue)] int contactId
         ) =>
-            (await _contactService.DeleteContactAsync(User.GetUserId(), contactId)).ToActionResult();
+            (await _contactService.DeleteContactAsync(User.GetUserId(), contactId))
+            .ToActionResult();
     }
 }

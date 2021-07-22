@@ -44,8 +44,7 @@ namespace MessengerApp.BLL.Services
                 var userEntity = new User
                 {
                     Email = register.Email,
-                    UserName = register.UserName,
-                    About = string.Empty
+                    UserName = register.UserName
                 };
 
                 if ((await _unitOfWork.Users.UserExistsAsync(register.Email)).Data)
@@ -63,10 +62,6 @@ namespace MessengerApp.BLL.Services
 
                 var pureLink =
                     $"https://localhost:5001/api/account/register/{emailConfirmationToken}/{userEntity.Id}";
-
-                // var htmlLink =
-                //     "<a class=\"link\" href=\"https://localhost:5001/api/account/register?" +
-                //     $"token={emailConfirmationToken}&userId={userEntity.Id}\">Confirm registration</a>\n";
 
                 await _emailService.SendAsync(
                     to: userEntity.Email,
@@ -174,8 +169,7 @@ namespace MessengerApp.BLL.Services
                 var userEntity = await _userManager.FindByIdAsync(userId.ToString());
 
                 return Result<ProfileDto>.CreateSuccess(
-                    new ProfileDto
-                    (
+                    new ProfileDto(
                         userEntity.Id,
                         userEntity.Email
                     )

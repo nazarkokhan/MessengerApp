@@ -8,8 +8,8 @@
         public const string MessageNotFount = "MESSAGE_NOT_FOUND";
         
         /// <summary>
-        /// Represents message when the message was not found.
+        /// Represents message when the message was not added to db.
         /// </summary>
-        public const string NoRulesToEditMessage = "NO_RULES_TO_EDIT_MESSAGE";
+        public const string ErrorAddingMessage = "ERROR_ADDING_MESSAGE";
     }
 }

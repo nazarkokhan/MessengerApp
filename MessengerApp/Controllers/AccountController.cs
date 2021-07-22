@@ -24,33 +24,38 @@ namespace MessengerApp.Controllers
         public async Task<IActionResult> CreteUserAndSendEmailToken(
             RegisterDto register
         ) =>
-            (await _accountService.CreateUserAndSendEmailTokenAsync(register)).ToActionResult();
+            (await _accountService.CreateUserAndSendEmailTokenAsync(register))
+            .ToActionResult();
 
         [HttpGet("register/{token}/{userId}")]
         public async Task<IActionResult> ConfirmRegistration(
             string token,
             [Range(0, int.MaxValue)] string userId
         ) =>
-            (await _accountService.ConfirmRegistrationWithTokenAsync(token, userId)).ToActionResult();
+            (await _accountService.ConfirmRegistrationWithTokenAsync(token, userId))
+            .ToActionResult();
 
         [HttpPost("login")]
         public async Task<IActionResult> LogInAsync(
             LogInUserDto userDto
         ) =>
-            (await _accountService.GetAccessTokenAsync(userDto)).ToActionResult();
+            (await _accountService.GetAccessTokenAsync(userDto))
+            .ToActionResult();
 
         [BearerAuthorize(Roles.Admin | Roles.User)]
         [HttpGet("profile")]
         public async Task<IActionResult> GetProfile(
         ) =>
-            (await _accountService.GetProfile(User.GetUserId())).ToActionResult();
+            (await _accountService.GetProfile(User.GetUserId()))
+            .ToActionResult();
 
         [BearerAuthorize(Roles.Admin | Roles.User)]
         [HttpPut("reset-email/email-token")]
         public async Task<IActionResult> SendEmailResetTokenAsync(
             ResetEmailDto resetEmailDto
         ) =>
-            (await _accountService.SendEmailResetTokenAsync(resetEmailDto, User.GetUserId())).ToActionResult();
+            (await _accountService.SendEmailResetTokenAsync(resetEmailDto, User.GetUserId()))
+            .ToActionResult();
 
         [BearerAuthorize(Roles.Admin | Roles.User)]
         [HttpGet("reset-email/{token}/{newEmail}")]
@@ -58,19 +63,22 @@ namespace MessengerApp.Controllers
             [FromQuery] string token,
             [FromQuery] string newEmail
         ) =>
-            (await _accountService.ResetEmailAsync(token, newEmail, User.GetUserId())).ToActionResult();
+            (await _accountService.ResetEmailAsync(token, newEmail, User.GetUserId()))
+            .ToActionResult();
 
         [HttpPut("reset-password/email-token")]
         public async Task<IActionResult> SendPasswordResetTokenAsync(
             ResetPasswordDto resetPasswordDto
         ) =>
-            (await _accountService.SendPasswordResetTokenAsync(resetPasswordDto)).ToActionResult();
+            (await _accountService.SendPasswordResetTokenAsync(resetPasswordDto))
+            .ToActionResult();
 
         [HttpPut("reset-password")]
         public async Task<IActionResult> ResetPasswordAsync(
             TokenPasswordDto tokenPasswordDto
         ) =>
-            (await _accountService.ResetPasswordAsync(tokenPasswordDto)).ToActionResult();
+            (await _accountService.ResetPasswordAsync(tokenPasswordDto))
+            .ToActionResult();
 
         [HttpGet("chat-members/{chatId:int}")]
         public async Task<IActionResult> GetUsersInChat(
@@ -79,6 +87,7 @@ namespace MessengerApp.Controllers
             [FromQuery] [Range(1, int.MaxValue)] int page = 1,
             [FromQuery] int items = 5
         ) =>
-            (await _accountService.GetUsersInChatAsync(chatId, search, page, items)).ToActionResult();
+            (await _accountService.GetUsersInChatAsync(chatId, search, page, items))
+            .ToActionResult();
     }
 }

@@ -8,6 +8,8 @@ using MessengerApp.Core.ResultConstants;
 using MessengerApp.Core.ResultModel;
 using MessengerApp.Core.ResultModel.Generics;
 using MessengerApp.DAL.EF;
+using MessengerApp.DAL.Entities;
+using MessengerApp.DAL.Extensions;
 using MessengerApp.DAL.Repository.Abstraction;
 using Microsoft.EntityFrameworkCore;
 
@@ -27,23 +29,22 @@ namespace MessengerApp.DAL.Repository
         {
             try
             {
-                var totalCount = await _db.Messages
+                var messageEntities = _db.Messages
+                    .OrderBy(m => m.DateTime)
                     .Where(m => m.ChatId == chatId)
-                    .CountAsync();
-
-                var messages = _db.Messages
-                    .Select(m => m.MapMessageDto())
-                    .OrderByDescending(m => m.DateTime)
-                    .TakePage(page, items);
+                    .AsQueryable();
 
                 if (!string.IsNullOrWhiteSpace(search))
-                    messages = messages
+                    messageEntities = messageEntities
                         .Where(m => m.Body.Contains(search));
 
                 return Result<Pager<MessageDto>>.CreateSuccess(
                     new Pager<MessageDto>(
-                        await messages.ToListAsync(),
-                        totalCount
+                        await messageEntities
+                            .TakePage(page, items)
+                            .Select(m => m.MapMessageDto())
+                            .ToListAsync(),
+                        await messageEntities.CountAsync()
                     )
                 );
             }
@@ -53,26 +54,58 @@ namespace MessengerApp.DAL.Repository
             }
         }
 
+        public async Task<Result<MessageDto>> CreateMessageAsync(
+            int userId, int chatId, CreateMessageDto createMessageDto)
+        {
+            try
+            {
+                var chatUser = await _db.ChatUsers.FindAsync(new ChatUser
+                {
+                    UserId = userId,
+                    ChatId = chatId
+                });
+                
+                if(chatUser is null)
+                    return Result<MessageDto>.CreateFailed(CommonResultConstants.NoRules);
+
+                var messageEntity = createMessageDto.MapMessage(userId, chatId);
+
+                await _db.AddAsync(messageEntity);
+
+                await _db.SaveChangesAsync();
+
+                if (messageEntity.Id < 1)
+                    return Result<MessageDto>.CreateFailed(
+                        MessageResultConstants.ErrorAddingMessage
+                    );
+
+                return Result<MessageDto>.CreateSuccess(messageEntity.MapMessageDto());
+            }
+            catch (Exception e)
+            {
+                return Result<MessageDto>.CreateFailed(CommonResultConstants.Unexpected, e);
+            }
+        }
+
         public async Task<Result<MessageDto>> EditMessageAsync(
             int userId, EditMessageDto editMessageDto)
         {
             try
             {
-                var message = await _db.Messages
+                var messageEntity = await _db.Messages
                     .FirstOrDefaultAsync(m => m.Id == editMessageDto.Id);
-                
-                if(message is null)
+
+                if (messageEntity is null)
                     return Result<MessageDto>.CreateFailed(MessageResultConstants.MessageNotFount);
-
-                message.MapEditMessageDto(editMessageDto);
                 
-                if (message.UserId != userId)
-                    return Result<MessageDto>.CreateFailed(
-                        MessageResultConstants.NoRulesToEditMessage,
-                        new UnauthorizedAccessException()
-                    );
-
-                return Result<MessageDto>.CreateSuccess(message.MapMessageDto());
+                if (messageEntity.UserId != userId)
+                    return Result<MessageDto>.CreateFailed(CommonResultConstants.NoRules);
+                
+                messageEntity.MapEditMessageDto(editMessageDto);
+                
+                await _db.SaveChangesAsync();
+                
+                return Result<MessageDto>.CreateSuccess(messageEntity.MapMessageDto());
             }
             catch (Exception e)
             {
@@ -81,26 +114,23 @@ namespace MessengerApp.DAL.Repository
         }
 
         public async Task<Result> DeleteMessageAsync(
-            int userId, int messageId)
+            int userId, long messageId)
         {
             try
             {
-                var message = await _db.Messages
+                var messageEntity = await _db.Messages
                     .FirstOrDefaultAsync(m => m.Id == messageId);
-                
-                if(message is null)
+
+                if (messageEntity is null)
                     return Result.CreateFailed(MessageResultConstants.MessageNotFount);
 
-                if (message.UserId != userId)
-                    return Result.CreateFailed(
-                        MessageResultConstants.NoRulesToEditMessage,
-                        new UnauthorizedAccessException()
-                    );
+                if (messageEntity.UserId != userId)
+                    return Result.CreateFailed(CommonResultConstants.NoRules);
 
-                _db.Messages.Remove(message);
+                _db.Messages.Remove(messageEntity);
 
                 await _db.SaveChangesAsync();
-                
+
                 return Result.CreateSuccess();
             }
             catch (Exception e)

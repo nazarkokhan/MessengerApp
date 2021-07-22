@@ -126,10 +126,18 @@ namespace MessengerApp.DAL.Repository
         {
             try
             {
-                var chatEntity = await _db.Chats.FirstOrDefaultAsync(c => c.Id == editChatDto.Id);
+                var chatEntity = await _db.Chats
+                    .Include(c => c.ChatUsers)
+                    .FirstOrDefaultAsync(c => c.Id == editChatDto.Id);
 
                 if (chatEntity is null)
                     Result.CreateFailed(ChatResultConstants.ChatNotFound, new NullReferenceException());
+                
+                if(chatEntity!.AdminId != userId)
+                    return Result<ChatDto>.CreateFailed(CommonResultConstants.NoRules);
+
+                if (!chatEntity.ChatUsers.Select(cu => cu.UserId).Contains(editChatDto.AdminId))
+                    editChatDto.AdminId = chatEntity.AdminId;
 
                 chatEntity!.MapEditChatDto(editChatDto);
 
@@ -153,7 +161,12 @@ namespace MessengerApp.DAL.Repository
                 if (chatEntity is null)
                     Result.CreateFailed(ChatResultConstants.ChatNotFound, new NullReferenceException());
 
+                if (chatEntity!.AdminId != userId)
+                    return Result.CreateFailed(CommonResultConstants.NoRules);
+                
                 _db.Chats.Remove(chatEntity!);
+                
+                await _db.SaveChangesAsync();
 
                 return Result.CreateSuccess();
             }

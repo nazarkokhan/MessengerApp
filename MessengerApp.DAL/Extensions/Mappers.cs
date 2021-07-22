@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using MessengerApp.Core.DTO.Chat;
 using MessengerApp.Core.DTO.Contact;
+using MessengerApp.Core.DTO.Message;
 using MessengerApp.DAL.Entities;
 
 namespace MessengerApp.DAL.Extensions
@@ -35,6 +36,16 @@ namespace MessengerApp.DAL.Extensions
             {
                 UserId = userId,
                 UserContactId = editContactDto.UserContactId
+            };
+        }
+        
+        public static Message MapMessage(this CreateMessageDto createMessageDto, int userId, int chatId)
+        {
+            return new()
+            {
+                Body = createMessageDto.Body,
+                UserId = userId,
+                ChatId = chatId
             };
         }
     }

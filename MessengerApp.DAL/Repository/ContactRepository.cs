@@ -34,7 +34,7 @@ namespace MessengerApp.DAL.Repository
                     .OrderBy(c => c.UserId)
                     .Where(c => c.UserId == userId)
                     .Select(c => c.UserContact);
-                
+
                 if (!string.IsNullOrWhiteSpace(search))
                     contactEntities = contactEntities
                         .Where(c => c.UserName.Contains(search));
@@ -71,7 +71,7 @@ namespace MessengerApp.DAL.Repository
                     UserId = userId,
                     UserContactId = userContactId
                 };
-                
+
                 var contactEntity = await _db.Contacts
                     .Include(c => c.UserContact)
                     .FirstOrDefaultAsync(c => c.UserId == userId && c.UserContactId == userContactId);
@@ -100,6 +100,8 @@ namespace MessengerApp.DAL.Repository
 
                 await _db.Contacts.AddAsync(contact);
 
+                await _db.SaveChangesAsync();
+
                 return await GetContactAsync(contact.UserId, contact.UserContactId);
             }
             catch (Exception e)
@@ -120,6 +122,9 @@ namespace MessengerApp.DAL.Repository
 
                 if (contactEntity is null)
                     return Result<ContactDto>.CreateFailed(ContactResultConstants.ContactNotFount);
+                
+                if(contactEntity.UserId != userId)
+                    return Result<ContactDto>.CreateFailed(CommonResultConstants.NoRules);
 
                 contactEntity.MapEditContact(editContactDto);
 
@@ -148,9 +153,17 @@ namespace MessengerApp.DAL.Repository
                     );
 
                 if (contactEntity is null)
-                    return Result.CreateFailed(ContactResultConstants.ContactNotFount, new NullReferenceException());
+                    return Result.CreateFailed(
+                        ContactResultConstants.ContactNotFount,
+                        new NullReferenceException()
+                    );
+
+                if (userId != contactEntity.UserId)
+                    return Result.CreateFailed(CommonResultConstants.NoRules);
 
                 _db.Contacts.Remove(contactEntity);
+
+                await _db.SaveChangesAsync();
 
                 return Result.CreateSuccess();
             }
