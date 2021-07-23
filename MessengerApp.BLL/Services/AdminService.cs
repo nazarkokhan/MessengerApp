@@ -7,6 +7,7 @@ using MessengerApp.Core.ResultModel;
 using MessengerApp.Core.ResultModel.Generics;
 using MessengerApp.DAL.Repository.Abstraction;
 using MessengerApp.BLL.Services.Abstraction;
+using MessengerApp.Core.DTO.Authorization;
 using MessengerApp.Core.DTO.User;
 using MessengerApp.DAL.Entities.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -36,11 +37,11 @@ namespace MessengerApp.BLL.Services
             _unitOfWork.Users.GetUserAsync(id);
 
         public async Task<Result<UserDto>> EditUserAsync(
-            EditUserDto editUserDto)
+            EditUserByAdminDto editUserByAdminDto)
         {
             try
             {
-                var editUserResult = await _unitOfWork.Users.EditUserAsync(editUserDto);
+                var editUserResult = await _unitOfWork.Users.EditUserByAdminAsync(editUserByAdminDto);
 
                 if (!editUserResult.Success)
                     return editUserResult;
@@ -50,13 +51,13 @@ namespace MessengerApp.BLL.Services
                 var removePassword = await _userManager.RemovePasswordAsync(userEntity);
 
                 if (!removePassword.Succeeded)
-                    return Result<UserDto>.CreateFailed(AccountResultConstants.ErrorRemovingPassword);
+                    return Result<UserDto>.CreateFailed(UserResultConstants.ErrorRemovingPassword);
 
                 var addPass = await _userManager
-                    .AddPasswordAsync(userEntity, editUserDto.NewPassword);
+                    .AddPasswordAsync(userEntity, editUserByAdminDto.NewPassword);
 
                 return !addPass.Succeeded
-                    ? Result<UserDto>.CreateFailed(AccountResultConstants.ErrorAddingPassword)
+                    ? Result<UserDto>.CreateFailed(UserResultConstants.ErrorAddingPassword)
                     : Result<UserDto>.CreateSuccess(userEntity.MapUserDto());
             }
             catch (Exception e)

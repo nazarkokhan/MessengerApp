@@ -38,6 +38,13 @@ namespace MessengerApp.Controllers
             (await _chatService.GetUserChatsPageAsync(User.GetUserId(), search, page, items))
             .ToActionResult();
 
+        [HttpPost("add-user")]
+        public async Task<IActionResult> AddUserInChatAsync(
+            AddUserInChatDto addUserInChatDto
+        ) =>
+            (await _chatService.AddUserInChatAsync(User.GetUserId(), addUserInChatDto))
+            .ToActionResult();
+
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetChat(
             [Range(1, int.MaxValue)] int id

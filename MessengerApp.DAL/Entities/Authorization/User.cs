@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
+using MessengerApp.Core.DTO.Authorization;
 using MessengerApp.Core.DTO.Contact;
 using MessengerApp.Core.DTO.User;
 using MessengerApp.DAL.Entities.Abstract;
@@ -43,9 +44,15 @@ namespace MessengerApp.DAL.Entities.Authorization
 
         public void MapEditUserDto(EditUserDto editUserDto)
         {
-            Email = editUserDto.NewEmail;
-            UserName = editUserDto.NewUserName;
+            UserName = editUserDto.UserName;
             About = editUserDto.About;
+        }
+        
+        public void MapEditUserByAdminDto(EditUserByAdminDto editUserByAdminDto)
+        {
+            Email = editUserByAdminDto.NewEmail;
+            UserName = editUserByAdminDto.NewUserName;
+            About = editUserByAdminDto.About;
         }
     }
 }

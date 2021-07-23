@@ -43,12 +43,12 @@ namespace MessengerApp.Controllers
             (await _contactService.CreateContactAsync(User.GetUserId(), createContactDto))
             .ToActionResult();
 
-        [HttpPut]
-        public async Task<IActionResult> EditContact(
-            EditContactDto editContactDto
-        ) =>
-            (await _contactService.EditContactAsync(User.GetUserId(), editContactDto))
-            .ToActionResult();
+        // [HttpPut]
+        // public async Task<IActionResult> EditContact(
+        //     EditContactDto editContactDto
+        // ) =>
+        //     (await _contactService.EditContactAsync(User.GetUserId(), editContactDto))
+        //     .ToActionResult();
 
         [HttpDelete("{contactId:int}")]
         public async Task<IActionResult> DeleteContact(

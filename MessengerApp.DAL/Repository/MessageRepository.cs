@@ -59,11 +59,8 @@ namespace MessengerApp.DAL.Repository
         {
             try
             {
-                var chatUser = await _db.ChatUsers.FindAsync(new ChatUser
-                {
-                    UserId = userId,
-                    ChatId = chatId
-                });
+                var chatUser = await _db.ChatUsers
+                    .FirstOrDefaultAsync(cu => cu.UserId == userId && cu.ChatId == chatId);
                 
                 if(chatUser is null)
                     return Result<MessageDto>.CreateFailed(CommonResultConstants.NoRules);

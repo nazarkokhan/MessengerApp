@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using MessengerApp.Core.DTO;
+using MessengerApp.Core.DTO.Authorization;
 using MessengerApp.Core.DTO.User;
 using MessengerApp.Core.ResultConstants.AuthorizationConstants;
 using MessengerApp.Core.ResultModel;
@@ -91,7 +92,7 @@ namespace MessengerApp.BLL.Tests
             var actual = await _userRepository.GetUserAsync(id);
 
             var expected = Result<User>.CreateFailed(
-                AccountResultConstants.UserNotFound,
+                UserResultConstants.UserNotFound,
                 new NullReferenceException()
             );
 
@@ -108,9 +109,9 @@ namespace MessengerApp.BLL.Tests
         public async Task EditUserAsync_EditUserDto_SuccessEditedUserReturned(
             int id, string newUserName, string newEmail, string newPassword, string about)
         {
-            var userDto = new EditUserDto(id, newUserName, newEmail, newPassword, about);
+            var userDto = new EditUserByAdminDto(id, newUserName, newEmail, newPassword, about);
 
-            var actual = await _userRepository.EditUserAsync(userDto);
+            var actual = await _userRepository.EditUserByAdminAsync(userDto);
 
             var expected = Result<UserDto>.CreateSuccess(actual.Data);
 
@@ -128,12 +129,12 @@ namespace MessengerApp.BLL.Tests
         public async Task EditUserAsync_EditUserDto_FailUserNotFoundReturned(
             int id, string newUserName, string newEmail, string newPassword, string about)
         {
-            var userDto = new EditUserDto(id, newUserName, newEmail, newPassword, about);
+            var userDto = new EditUserByAdminDto(id, newUserName, newEmail, newPassword, about);
 
-            var actual = await _userRepository.EditUserAsync(userDto);
+            var actual = await _userRepository.EditUserByAdminAsync(userDto);
 
             var expected = Result<User>.CreateFailed(
-                AccountResultConstants.UserNotFound,
+                UserResultConstants.UserNotFound,
                 new NullReferenceException()
             );
 
@@ -185,7 +186,7 @@ namespace MessengerApp.BLL.Tests
             var actual = await _userRepository.DeleteUserAsync(id);
 
             var expected = Result.CreateFailed(
-                AccountResultConstants.UserNotFound,
+                UserResultConstants.UserNotFound,
                 new NullReferenceException()
             );
 

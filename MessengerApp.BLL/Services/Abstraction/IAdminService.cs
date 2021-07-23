@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using MessengerApp.Core.DTO;
+using MessengerApp.Core.DTO.Authorization;
 using MessengerApp.Core.DTO.User;
 using MessengerApp.Core.ResultModel;
 using MessengerApp.Core.ResultModel.Generics;
@@ -17,7 +18,7 @@ namespace MessengerApp.BLL.Services.Abstraction
             [FromQuery] [Range(1, int.MaxValue)] int id);
 
         Task<Result<UserDto>> EditUserAsync(
-            EditUserDto editUserDto);
+            EditUserByAdminDto editUserByAdminDto);
 
         Task<Result> DeleteUserAsync(
             int id);

@@ -36,7 +36,7 @@ namespace MessengerApp.BLL.Services
             _emailService = emailService;
             _unitOfWork = unitOfWork;
         }
-        
+
         public async Task<Result> CreateUserAndSendEmailTokenAsync(RegisterDto register)
         {
             try
@@ -48,12 +48,12 @@ namespace MessengerApp.BLL.Services
                 };
 
                 if ((await _unitOfWork.Users.UserExistsAsync(register.Email)).Data)
-                    return Result.CreateFailed(AccountResultConstants.UserAlreadyExists);
+                    return Result.CreateFailed(UserResultConstants.UserAlreadyExists);
 
                 var createResult = await _userManager.CreateAsync(userEntity, register.Password);
 
                 if (!createResult.Succeeded)
-                    return Result.CreateFailed(AccountResultConstants.ErrorCreatingUser);
+                    return Result.CreateFailed(UserResultConstants.ErrorCreatingUser);
 
                 var token = await _userManager.GenerateEmailConfirmationTokenAsync(userEntity);
 
@@ -61,7 +61,10 @@ namespace MessengerApp.BLL.Services
                     HttpUtility.UrlEncode(token);
 
                 var pureLink =
-                    $"https://localhost:5001/api/account/register/{emailConfirmationToken}/{userEntity.Id}";
+                    $"{AccountEmailServiceConstants.UseThisUrlToConfirmRegistration}" +
+                    "https://localhost:5001/api/account/register/" +
+                    $"{emailConfirmationToken}/" +
+                    $"{userEntity.Id}";
 
                 await _emailService.SendAsync(
                     to: userEntity.Email,
@@ -77,19 +80,19 @@ namespace MessengerApp.BLL.Services
             }
         }
 
-        public async Task<Result> ConfirmRegistrationWithTokenAsync(
+        public async Task<Result<string>> ConfirmRegistrationWithTokenAsync(
             string token, string userId)
         {
             try
             {
                 var decodedToken = token.Replace("%2f", "/");
-                
+
                 var userEntity = await _userManager.FindByIdAsync(userId);
 
                 var tokenIsValid = await _userManager.ConfirmEmailAsync(userEntity, decodedToken);
 
                 if (!tokenIsValid.Succeeded)
-                    return Result.CreateFailed(AccountResultConstants.InvalidRegistrationToken);
+                    return Result<string>.CreateFailed(UserResultConstants.InvalidRegistrationToken);
 
                 await _userManager.AddToRoleAsync(userEntity, Roles.User.ToString());
 
@@ -99,11 +102,11 @@ namespace MessengerApp.BLL.Services
                     subject: AccountEmailServiceConstants.RegistrationConfirmed
                 );
 
-                return Result.CreateSuccess();
+                return Result<string>.CreateSuccess(AccountEmailServiceConstants.RegistrationConfirmed);
             }
             catch (Exception e)
             {
-                return Result.CreateFailed(CommonResultConstants.Unexpected, e);
+                return Result<string>.CreateFailed(CommonResultConstants.Unexpected, e);
             }
         }
 
@@ -116,24 +119,24 @@ namespace MessengerApp.BLL.Services
 
                 if (user is null)
                     return Result<Token>.CreateFailed(
-                        AccountResultConstants.UserNotFound,
+                        UserResultConstants.UserNotFound,
                         new NullReferenceException()
                     );
-                
-                if (!await _userManager.CheckPasswordAsync(user, userInput.Password))
-                    return Result<Token>.CreateFailed(AccountResultConstants.InvalidUserNameOrPassword);
 
-                if(!user.EmailConfirmed)
-                    return Result<Token>.CreateFailed(AccountResultConstants.UserEmailNotConfirmed);
-                
+                if (!await _userManager.CheckPasswordAsync(user, userInput.Password))
+                    return Result<Token>.CreateFailed(UserResultConstants.InvalidUserNameOrPassword);
+
+                if (!user.EmailConfirmed)
+                    return Result<Token>.CreateFailed(UserResultConstants.UserEmailNotConfirmed);
+
                 var userRole = await _userManager.GetRolesAsync(user);
-                
-                if(userRole is null)
+
+                if (userRole is null)
                     return Result<Token>.CreateFailed(
-                        AccountResultConstants.UserDoesntHaveRole,
+                        UserResultConstants.UserDoesntHaveRole,
                         new NullReferenceException()
                     );
-                
+
                 var timeNow = DateTime.Now;
 
                 var jwt = new JwtSecurityToken(
@@ -181,8 +184,13 @@ namespace MessengerApp.BLL.Services
             }
         }
 
+        public Task<Result<UserDto>> EditUserAsync(
+            int id, EditUserDto editUserDto
+        ) =>
+            _unitOfWork.Users.EditUserAsync(id, editUserDto);
+        
         public async Task<Result> SendEmailResetTokenAsync(
-            ResetEmailDto resetEmailDto, int userId)
+            int userId, ResetEmailDto resetEmailDto)
         {
             try
             {
@@ -191,7 +199,7 @@ namespace MessengerApp.BLL.Services
 
                 if (userEntity is null)
                     return Result.CreateFailed(
-                        AccountResultConstants.UserNotFound,
+                        UserResultConstants.UserNotFound,
                         new NullReferenceException()
                     );
 
@@ -223,7 +231,7 @@ namespace MessengerApp.BLL.Services
         }
 
         public async Task<Result> ResetEmailAsync(
-            string token, string newEmail, int userId)
+            int userId, string token, string newEmail)
         {
             try
             {
@@ -232,7 +240,7 @@ namespace MessengerApp.BLL.Services
 
                 if (userEntity is null)
                     return Result.CreateFailed(
-                        AccountResultConstants.UserNotFound,
+                        UserResultConstants.UserNotFound,
                         new NullReferenceException()
                     );
 
@@ -240,7 +248,7 @@ namespace MessengerApp.BLL.Services
                     .ChangeEmailAsync(userEntity, newEmail, token);
 
                 if (!changeEmail.Succeeded)
-                    return Result.CreateFailed(AccountResultConstants.InvalidResetEmailToken);
+                    return Result.CreateFailed(UserResultConstants.InvalidResetEmailToken);
 
                 userEntity.UserName = newEmail;
 
@@ -262,7 +270,7 @@ namespace MessengerApp.BLL.Services
 
                 if (userEntity is null)
                     return Result.CreateFailed(
-                        AccountResultConstants.UserNotFound,
+                        UserResultConstants.UserNotFound,
                         new NullReferenceException()
                     );
 
@@ -293,7 +301,7 @@ namespace MessengerApp.BLL.Services
 
                 if (userEntity is null)
                     return Result.CreateFailed(
-                        AccountResultConstants.UserNotFound,
+                        UserResultConstants.UserNotFound,
                         new NullReferenceException()
                     );
 
@@ -304,7 +312,7 @@ namespace MessengerApp.BLL.Services
                 );
 
                 return !resetPassword.Succeeded
-                    ? Result.CreateFailed(AccountResultConstants.InvalidResetPasswordToken)
+                    ? Result.CreateFailed(UserResultConstants.InvalidResetPasswordToken)
                     : Result.CreateSuccess();
             }
             catch (Exception e)
@@ -312,11 +320,11 @@ namespace MessengerApp.BLL.Services
                 return Result.CreateFailed(CommonResultConstants.Unexpected, e);
             }
         }
-        
+
         public Task<Result<Pager<UserDto>>> GetUsersInChatAsync(
-            int chatId, string? search, int page, int items)
+            int userId, int chatId, string? search, int page, int items)
         {
-            return _unitOfWork.Users.GetUsersInChatAsync(chatId, search, page, items);
+            return _unitOfWork.Users.GetUsersInChatAsync(userId, chatId, search, page, items);
         }
     }
 }

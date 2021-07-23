@@ -87,7 +87,7 @@ namespace MessengerApp.BLL.Tests
 
             var actual = await _accountService.CreateUserAndSendEmailTokenAsync(registerDto);
 
-            var expected = Result.CreateFailed(AccountResultConstants.UserAlreadyExists);
+            var expected = Result.CreateFailed(UserResultConstants.UserAlreadyExists);
 
             Assert.NotNull(actual);
             Assert.Null(actual.Exception);
@@ -114,7 +114,7 @@ namespace MessengerApp.BLL.Tests
 
             var actual = await _accountService.CreateUserAndSendEmailTokenAsync(registerDto);
 
-            var expected = Result.CreateFailed(AccountResultConstants.ErrorCreatingUser);
+            var expected = Result.CreateFailed(UserResultConstants.ErrorCreatingUser);
 
             Assert.NotNull(actual);
             Assert.Null(actual.Exception);
@@ -204,7 +204,7 @@ namespace MessengerApp.BLL.Tests
 
             var actual = await _accountService.ConfirmRegistrationWithTokenAsync(token, userId);
 
-            var expected = Result.CreateFailed(AccountResultConstants.InvalidRegistrationToken);
+            var expected = Result.CreateFailed(UserResultConstants.InvalidRegistrationToken);
 
             Assert.NotNull(actual);
             Assert.Null(actual.Exception);
@@ -288,7 +288,7 @@ namespace MessengerApp.BLL.Tests
             var actual = await _accountService.GetAccessTokenAsync(userInput);
 
             var expected = Result<Token>.CreateFailed(
-                AccountResultConstants.UserNotFound,
+                UserResultConstants.UserNotFound,
                 new NullReferenceException()
             );
 
@@ -322,7 +322,7 @@ namespace MessengerApp.BLL.Tests
 
             var actual = await _accountService.GetAccessTokenAsync(userInput);
 
-            var expected = Result<Token>.CreateFailed(AccountResultConstants.InvalidUserNameOrPassword);
+            var expected = Result<Token>.CreateFailed(UserResultConstants.InvalidUserNameOrPassword);
 
             Assert.NotNull(actual);
             Assert.Null(actual.Exception);
@@ -422,7 +422,7 @@ namespace MessengerApp.BLL.Tests
                 .SendAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())
             ).Returns(Task.CompletedTask);
 
-            var actual = await _accountService.SendEmailResetTokenAsync(resetEmailDto, userId);
+            var actual = await _accountService.SendEmailResetTokenAsync(userId, resetEmailDto);
 
             var expected = Result.CreateSuccess();
 
@@ -442,10 +442,10 @@ namespace MessengerApp.BLL.Tests
         {
             var resetEmailDto = new ResetEmailDto(newEmailDto, confirmNewEmailDto);
 
-            var actual = await _accountService.SendEmailResetTokenAsync(resetEmailDto, userId);
+            var actual = await _accountService.SendEmailResetTokenAsync(userId, resetEmailDto);
 
             var expected = Result.CreateFailed(
-                AccountResultConstants.UserNotFound,
+                UserResultConstants.UserNotFound,
                 new NullReferenceException()
             );
 
@@ -470,7 +470,7 @@ namespace MessengerApp.BLL.Tests
                 .FindByIdAsync(userId.ToString())
             ).Throws(new Exception());
 
-            var actual = await _accountService.SendEmailResetTokenAsync(resetEmailDto, userId);
+            var actual = await _accountService.SendEmailResetTokenAsync(userId, resetEmailDto);
 
             var expected = Result.CreateFailed(CommonResultConstants.Unexpected, new Exception());
 
@@ -500,7 +500,7 @@ namespace MessengerApp.BLL.Tests
                 .ChangeEmailAsync(userEntity, newEmail, token)
             ).Returns(Task.FromResult(IdentityResult.Success));
 
-            var actual = await _accountService.ResetEmailAsync(token, newEmail, userId);
+            var actual = await _accountService.ResetEmailAsync(userId, token, newEmail);
 
             var expected = Result.CreateSuccess();
 
@@ -517,10 +517,10 @@ namespace MessengerApp.BLL.Tests
         public async Task ResetEmailAsync_TokenAndNewEmailAndUserId_FailUserNotFoundReturned(
             string token, string newEmail, int userId)
         {
-            var actual = await _accountService.ResetEmailAsync(token, newEmail, userId);
+            var actual = await _accountService.ResetEmailAsync(userId, token, newEmail);
 
             var expected = Result.CreateFailed(
-                AccountResultConstants.UserNotFound,
+                UserResultConstants.UserNotFound,
                 new NullReferenceException()
             );
 
@@ -552,9 +552,9 @@ namespace MessengerApp.BLL.Tests
                 .ChangeEmailAsync(It.IsAny<User>(), It.IsAny<string>(), It.IsAny<string>())
             ).Returns(Task.FromResult(IdentityResult.Failed()));
 
-            var actual = await _accountService.ResetEmailAsync(token, newEmail, userId);
+            var actual = await _accountService.ResetEmailAsync(userId, token, newEmail);
 
-            var expected = Result.CreateFailed(AccountResultConstants.InvalidResetEmailToken);
+            var expected = Result.CreateFailed(UserResultConstants.InvalidResetEmailToken);
 
             Assert.NotNull(actual);
             Assert.Null(actual.Exception);
@@ -574,7 +574,7 @@ namespace MessengerApp.BLL.Tests
                 .FindByIdAsync(userId.ToString())
             ).Throws(new Exception());
 
-            var actual = await _accountService.ResetEmailAsync(token, newEmail, userId);
+            var actual = await _accountService.ResetEmailAsync(userId, token, newEmail);
 
             var expected = Result.CreateFailed(CommonResultConstants.Unexpected, new Exception());
 
@@ -631,7 +631,7 @@ namespace MessengerApp.BLL.Tests
             var actual = await _accountService.SendPasswordResetTokenAsync(resetPasswordDto);
 
             var expected = Result.CreateFailed(
-                AccountResultConstants.UserNotFound,
+                UserResultConstants.UserNotFound,
                 new NullReferenceException()
             );
 
@@ -721,7 +721,7 @@ namespace MessengerApp.BLL.Tests
             var actual = await _accountService.ResetPasswordAsync(tokenPasswordDto);
 
             var expected = Result.CreateFailed(
-                AccountResultConstants.UserNotFound,
+                UserResultConstants.UserNotFound,
                 new NullReferenceException()
             );
 
@@ -763,7 +763,7 @@ namespace MessengerApp.BLL.Tests
 
             var actual = await _accountService.ResetPasswordAsync(tokenPasswordDto);
 
-            var expected = Result.CreateFailed(AccountResultConstants.InvalidResetPasswordToken);
+            var expected = Result.CreateFailed(UserResultConstants.InvalidResetPasswordToken);
 
             Assert.NotNull(actual);
             Assert.Null(actual.Exception);

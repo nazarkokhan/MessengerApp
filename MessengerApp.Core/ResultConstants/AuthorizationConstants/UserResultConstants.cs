@@ -1,6 +1,6 @@
 ﻿namespace MessengerApp.Core.ResultConstants.AuthorizationConstants
 {
-    public static class AccountResultConstants
+    public static class UserResultConstants
     {
         /// <summary>
         /// Represents message when user with the same email already exists in system.
@@ -61,6 +61,7 @@
         /// Represents message when the user sent valid code for resetting, but it is already expired.
         /// </summary>
         public const string UserEmailNotConfirmed = "USER_EMAIL_NOT_CONFIRMED";
+        
         
         /// <summary>
         /// Represents message when the user sent valid code for resetting, but it is already expired.

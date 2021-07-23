@@ -10,13 +10,10 @@ namespace MessengerApp.BLL.Services.Abstraction
 {
     public interface IAccountService
     {
-        Task<Result<Pager<UserDto>>> GetUsersInChatAsync(
-            int chatId, string? search, int page, int items);
-        
         Task<Result> CreateUserAndSendEmailTokenAsync(
             RegisterDto register);
 
-        Task<Result> ConfirmRegistrationWithTokenAsync(
+        Task<Result<string>> ConfirmRegistrationWithTokenAsync(
             string token, string userId);
         
         Task<Result<Token>> GetAccessTokenAsync(
@@ -25,16 +22,22 @@ namespace MessengerApp.BLL.Services.Abstraction
         Task<Result<ProfileDto>> GetProfile(
             int userId);
 
+        Task<Result<UserDto>> EditUserAsync(
+            int id, EditUserDto editUserDto);
+        
         Task<Result> SendEmailResetTokenAsync(
-            ResetEmailDto resetEmailDto, int userId);
+            int userId, ResetEmailDto resetEmailDto);
 
         Task<Result> ResetEmailAsync(
-            string token, string newEmail, int userId);
+            int userId, string token, string newEmail);
 
         Task<Result> SendPasswordResetTokenAsync(
             ResetPasswordDto resetPasswordDto);
 
         Task<Result> ResetPasswordAsync(
             TokenPasswordDto tokenPasswordDto);
+
+        Task<Result<Pager<UserDto>>> GetUsersInChatAsync(
+            int userId, int chatId, string? search, int page, int items);
     }
 }

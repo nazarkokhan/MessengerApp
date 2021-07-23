@@ -5,6 +5,7 @@ using MessengerApp.Core.DTO;
 using MessengerApp.Core.DTO.Contact;
 using MessengerApp.Core.Extensions;
 using MessengerApp.Core.ResultConstants;
+using MessengerApp.Core.ResultConstants.AuthorizationConstants;
 using MessengerApp.Core.ResultModel;
 using MessengerApp.Core.ResultModel.Generics;
 using MessengerApp.DAL.EF;
@@ -95,14 +96,20 @@ namespace MessengerApp.DAL.Repository
         {
             try
             {
-                var contact = createContactDto
+                var contactEntity = createContactDto
                     .MapContact(userId);
 
-                await _db.Contacts.AddAsync(contact);
+                if (!await _db.Users.Select(u => u.Id).ContainsAsync(createContactDto.UserContactId))
+                    return Result<ContactDto>.CreateFailed(
+                        UserResultConstants.UserNotFound,
+                        new NullReferenceException()
+                    );
+
+                await _db.Contacts.AddAsync(contactEntity);
 
                 await _db.SaveChangesAsync();
 
-                return await GetContactAsync(contact.UserId, contact.UserContactId);
+                return await GetContactAsync(contactEntity.UserId, contactEntity.UserContactId);
             }
             catch (Exception e)
             {
@@ -116,18 +123,23 @@ namespace MessengerApp.DAL.Repository
             try
             {
                 var contactEntity = await _db.Contacts
-                    .FindAsync(
-                        editContactDto.MapContact(userId)
-                    );
+                    .FirstOrDefaultAsync(c => c.UserId == userId 
+                                              && c.UserContactId == editContactDto.UserContactId);
 
                 if (contactEntity is null)
                     return Result<ContactDto>.CreateFailed(ContactResultConstants.ContactNotFount);
                 
-                if(contactEntity.UserId != userId)
+                if (contactEntity.UserId != userId)
                     return Result<ContactDto>.CreateFailed(CommonResultConstants.NoRules);
-
+                
                 contactEntity.MapEditContact(editContactDto);
-
+                
+                if (await _db.Contacts.ContainsAsync(contactEntity)) // Doesnt work
+                    return Result<ContactDto>.CreateFailed(
+                        ContactResultConstants.ContactAlreadyExists,
+                        new NullReferenceException()
+                    );
+                
                 await _db.SaveChangesAsync();
 
                 return await GetContactAsync(userId, editContactDto.NewUserContactId);

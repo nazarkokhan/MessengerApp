@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using MessengerApp.Core.DTO;
+using MessengerApp.Core.DTO.Authorization;
 using MessengerApp.Core.DTO.User;
 using MessengerApp.Core.Extensions;
 using MessengerApp.Core.ResultConstants;
@@ -53,7 +54,7 @@ namespace MessengerApp.DAL.Repository
         }
 
         public async Task<Result<Pager<UserDto>>> GetUsersInChatAsync(
-            int chatId, string? search, int page, int items)
+            int userid, int chatId, string? search, int page, int items)
         {
             try
             {
@@ -93,7 +94,7 @@ namespace MessengerApp.DAL.Repository
 
                 return userEntity is null
                     ? Result<UserDto>.CreateFailed(
-                        AccountResultConstants.UserNotFound,
+                        UserResultConstants.UserNotFound,
                         new NullReferenceException()
                     )
                     : Result<UserDto>.CreateSuccess(userEntity.MapUserDto());
@@ -103,22 +104,48 @@ namespace MessengerApp.DAL.Repository
                 return Result<UserDto>.CreateFailed(CommonResultConstants.Unexpected, e);
             }
         }
-
+        
         public async Task<Result<UserDto>> EditUserAsync(
-            EditUserDto editUserDto)
+            int id, EditUserDto editUserDto)
         {
             try
             {
                 var userEntity = await _db.Users
-                    .FirstOrDefaultAsync(u => u.Id == editUserDto.Id);
+                    .FirstOrDefaultAsync(u => u.Id == id);
 
                 if (userEntity is null)
                     return Result<UserDto>.CreateFailed(
-                        AccountResultConstants.UserNotFound,
+                        UserResultConstants.UserNotFound,
                         new NullReferenceException()
                     );
 
                 userEntity.MapEditUserDto(editUserDto);
+
+                await _db.SaveChangesAsync();
+
+                return Result<UserDto>.CreateSuccess(userEntity.MapUserDto());
+            }
+            catch (Exception e)
+            {
+                return Result<UserDto>.CreateFailed(CommonResultConstants.Unexpected, e);
+            }
+        }
+
+        public async Task<Result<UserDto>> EditUserByAdminAsync(
+            EditUserByAdminDto editUserByAdminDto)
+        {
+            try
+            {
+                var userEntity = await _db.Users
+                    .FirstOrDefaultAsync(u => u.Id == editUserByAdminDto.Id);
+
+                if (userEntity is null)
+                    return Result<UserDto>.CreateFailed(
+                        UserResultConstants.UserNotFound,
+                        new NullReferenceException()
+                    );
+
+                userEntity.MapEditUserByAdminDto(editUserByAdminDto);
 
                 await _db.SaveChangesAsync();
 
@@ -140,7 +167,7 @@ namespace MessengerApp.DAL.Repository
 
                 if (userEntity is null)
                     return Result.CreateFailed(
-                        AccountResultConstants.UserNotFound,
+                        UserResultConstants.UserNotFound,
                         new NullReferenceException()
                     );
 
@@ -155,6 +182,7 @@ namespace MessengerApp.DAL.Repository
                 return Result.CreateFailed(CommonResultConstants.Unexpected, e);
             }
         }
+        
 
         public async Task<Result<bool>> UserExistsAsync(
             string email)

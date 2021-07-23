@@ -14,6 +14,9 @@ namespace MessengerApp.DAL.Repository.Abstraction
         Task<Result<Pager<ChatDto>>> GetUserChatsPageAsync(
             int userId, string? search, int page, int items);
 
+        Task<Result<ChatDto>> AddUserInChatAsync(
+            int userId, AddUserInChatDto addUserInChatDto);
+
         Task<Result<ChatDto>> GetChatAsync(
             int id);
 

@@ -8,6 +8,7 @@ using MessengerApp.Core.ResultConstants;
 using MessengerApp.Core.ResultModel;
 using MessengerApp.Core.ResultModel.Generics;
 using MessengerApp.DAL.EF;
+using MessengerApp.DAL.Entities;
 using MessengerApp.DAL.Extensions;
 using MessengerApp.DAL.Repository.Abstraction;
 using Microsoft.EntityFrameworkCore;
@@ -62,7 +63,7 @@ namespace MessengerApp.DAL.Repository
                     .OrderBy(cu => cu.Chat.Name)
                     .Where(cu => cu.UserId == userId)
                     .Select(cu => cu.Chat);
-                
+
                 if (!string.IsNullOrWhiteSpace(search))
                     chatEntities = chatEntities
                         .Where(c => c.Name.Contains(search));
@@ -80,6 +81,39 @@ namespace MessengerApp.DAL.Repository
             catch (Exception e)
             {
                 return Result<Pager<ChatDto>>.CreateFailed(CommonResultConstants.Unexpected, e);
+            }
+        }
+
+        public async Task<Result<ChatDto>> AddUserInChatAsync(
+            int userId, AddUserInChatDto addUserInChatDto)
+        {
+            try
+            {
+                var chatEntity = await _db.Chats
+                    .Include(c => c.ChatUsers)
+                    .FirstOrDefaultAsync(c => c.Id == addUserInChatDto.ChatId);
+
+                if (chatEntity is null)
+                    return Result<ChatDto>.CreateFailed(ChatResultConstants.ChatNotFound);
+
+                if (chatEntity.AdminId != userId)
+                    return Result<ChatDto>.CreateFailed(CommonResultConstants.NoRules);
+
+                var chatUserEntity = addUserInChatDto.MapChatUser();
+
+                if (chatEntity.ChatUsers
+                        .FirstOrDefault(cu => cu.UserId == userId) is null)
+                    return Result<ChatDto>.CreateFailed(ChatResultConstants.UserAlreadyInChat);
+
+                chatEntity.ChatUsers.Add(chatUserEntity);
+
+                await _db.SaveChangesAsync();
+                
+                return Result<ChatDto>.CreateSuccess(chatEntity.MapChatDto());
+            }
+            catch (Exception e)
+            {
+                return Result<ChatDto>.CreateFailed(CommonResultConstants.Unexpected, e);
             }
         }
 
@@ -132,8 +166,8 @@ namespace MessengerApp.DAL.Repository
 
                 if (chatEntity is null)
                     Result.CreateFailed(ChatResultConstants.ChatNotFound, new NullReferenceException());
-                
-                if(chatEntity!.AdminId != userId)
+
+                if (chatEntity!.AdminId != userId)
                     return Result<ChatDto>.CreateFailed(CommonResultConstants.NoRules);
 
                 if (!chatEntity.ChatUsers.Select(cu => cu.UserId).Contains(editChatDto.AdminId))
@@ -163,9 +197,9 @@ namespace MessengerApp.DAL.Repository
 
                 if (chatEntity!.AdminId != userId)
                     return Result.CreateFailed(CommonResultConstants.NoRules);
-                
+
                 _db.Chats.Remove(chatEntity!);
-                
+
                 await _db.SaveChangesAsync();
 
                 return Result.CreateSuccess();

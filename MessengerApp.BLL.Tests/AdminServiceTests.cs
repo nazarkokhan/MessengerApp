@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using MessengerApp.BLL.Services;
 using MessengerApp.BLL.Services.Abstraction;
+using MessengerApp.Core.DTO.Authorization;
 using MessengerApp.Core.DTO.User;
 using MessengerApp.Core.ResultConstants;
 using MessengerApp.Core.ResultConstants.AuthorizationConstants;
@@ -35,7 +36,7 @@ namespace MessengerApp.BLL.Tests
         public async Task EditUserAsync_EditUserDto_SuccessEditedUserReturned(
             int id, string newUserName, string newEmail, string newPassword, string about)
         {
-            var editUserDto = new EditUserDto(id, newUserName, newEmail, newPassword, about);
+            var editUserDto = new EditUserByAdminDto(id, newUserName, newEmail, newPassword, about);
 
             var userEntity = new User
             {
@@ -44,7 +45,7 @@ namespace MessengerApp.BLL.Tests
             };
 
             _unitOfWorkMock.Setup(unitOfWork => unitOfWork.Users
-                .EditUserAsync(editUserDto)
+                .EditUserByAdminAsync(editUserDto)
             ).Returns(Task.FromResult(Result<UserDto>.CreateSuccess(userEntity.MapUserDto())));
 
             _userManagerMock.Setup(userManager => userManager
@@ -71,7 +72,7 @@ namespace MessengerApp.BLL.Tests
         public async Task EditUserAsync_EditUserDto_FailFromRepositoryReturned(
             int id, string newUserName, string newEmail, string newPassword, string about)
         {
-            var editUserDto = new EditUserDto(id, newUserName, newEmail, newPassword, about);
+            var editUserDto = new EditUserByAdminDto(id, newUserName, newEmail, newPassword, about);
 
             var userEntity = new User
             {
@@ -80,16 +81,16 @@ namespace MessengerApp.BLL.Tests
             };
 
             _unitOfWorkMock.Setup(unitOfWork => unitOfWork.Users
-                .EditUserAsync(editUserDto)
+                .EditUserByAdminAsync(editUserDto)
             ).Returns(Task.FromResult(Result<UserDto>.CreateFailed(
-                AccountResultConstants.UserNotFound,
+                UserResultConstants.UserNotFound,
                 new NullReferenceException()))
             );
 
             var actual = await _adminService.EditUserAsync(editUserDto);
 
             var expected = Result<UserDto>.CreateFailed(
-                AccountResultConstants.UserNotFound,
+                UserResultConstants.UserNotFound,
                 new NullReferenceException()
             );
 
@@ -105,7 +106,7 @@ namespace MessengerApp.BLL.Tests
         public async Task EditUserAsync_EditUserDto_FailRemovingPasswordReturned(
             int id, string newUserName, string newEmail, string newPassword, string about)
         {
-            var editUserDto = new EditUserDto(id, newUserName, newEmail, newPassword, about);
+            var editUserDto = new EditUserByAdminDto(id, newUserName, newEmail, newPassword, about);
 
             var userEntity = new User
             {
@@ -114,7 +115,7 @@ namespace MessengerApp.BLL.Tests
             };
 
             _unitOfWorkMock.Setup(unitOfWork => unitOfWork.Users
-                .EditUserAsync(editUserDto)
+                .EditUserByAdminAsync(editUserDto)
             ).Returns(Task.FromResult(Result<UserDto>.CreateSuccess(userEntity.MapUserDto())));
 
             _userManagerMock.Setup(userManager => userManager
@@ -123,7 +124,7 @@ namespace MessengerApp.BLL.Tests
 
             var actual = await _adminService.EditUserAsync(editUserDto);
 
-            var expected = Result<UserDto>.CreateFailed(AccountResultConstants.ErrorRemovingPassword);
+            var expected = Result<UserDto>.CreateFailed(UserResultConstants.ErrorRemovingPassword);
 
             Assert.NotNull(actual);
             Assert.Null(actual.Exception);
@@ -137,7 +138,7 @@ namespace MessengerApp.BLL.Tests
         public async Task EditUserAsync_EditUserDto_FailAddingPasswordReturned(
             int id, string newUserName, string newEmail, string newPassword, string about)
         {
-            var editUserDto = new EditUserDto(id, newUserName, newEmail, newPassword, about);
+            var editUserDto = new EditUserByAdminDto(id, newUserName, newEmail, newPassword, about);
 
             var userEntity = new User
             {
@@ -146,7 +147,7 @@ namespace MessengerApp.BLL.Tests
             };
 
             _unitOfWorkMock.Setup(unitOfWork => unitOfWork.Users
-                .EditUserAsync(editUserDto)
+                .EditUserByAdminAsync(editUserDto)
             ).Returns(Task.FromResult(Result<UserDto>.CreateSuccess(userEntity.MapUserDto())));
 
             _userManagerMock.Setup(userManager => userManager
@@ -159,7 +160,7 @@ namespace MessengerApp.BLL.Tests
 
             var actual = await _adminService.EditUserAsync(editUserDto);
 
-            var expected = Result<UserDto>.CreateFailed(AccountResultConstants.ErrorAddingPassword);
+            var expected = Result<UserDto>.CreateFailed(UserResultConstants.ErrorAddingPassword);
 
             Assert.NotNull(actual);
             Assert.Null(actual.Exception);
@@ -173,7 +174,7 @@ namespace MessengerApp.BLL.Tests
         public async Task EditUserAsync_EditUserDto_FailUnexpectedReturned(
             int id, string newUserName, string newEmail, string newPassword, string about)
         {
-            var editUserDto = new EditUserDto(id, newUserName, newEmail, newPassword, about);
+            var editUserDto = new EditUserByAdminDto(id, newUserName, newEmail, newPassword, about);
 
             var userEntity = new User
             {
@@ -182,7 +183,7 @@ namespace MessengerApp.BLL.Tests
             };
 
             _unitOfWorkMock.Setup(unitOfWork => unitOfWork.Users
-                .EditUserAsync(editUserDto)
+                .EditUserByAdminAsync(editUserDto)
             ).Throws(new Exception());
 
             var actual = await _adminService.EditUserAsync(editUserDto);

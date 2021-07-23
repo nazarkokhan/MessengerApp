@@ -48,5 +48,14 @@ namespace MessengerApp.DAL.Extensions
                 ChatId = chatId
             };
         }
+        
+        public static ChatUser MapChatUser(this AddUserInChatDto addUserInChatDto)
+        {
+            return new()
+            {
+                UserId = addUserInChatDto.UserId,
+                ChatId = addUserInChatDto.ChatId
+            };
+        }
     }
 }

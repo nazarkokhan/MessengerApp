@@ -23,7 +23,7 @@ namespace MessengerApp.DAL.Entities
 
         public ChatDto MapChatDto()
         {
-            return new ChatDto(Id, Name);
+            return new ChatDto(Id, Name, AdminId);
         }
         
         public void MapEditChatDto(EditChatDto editChatDto)

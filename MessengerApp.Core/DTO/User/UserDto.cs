@@ -2,8 +2,7 @@
 {
     public class UserDto
     {
-        public UserDto(int id, string userName, string about, 
-            string email)
+        public UserDto(int id, string userName, string about, string email)
         {
             Id = id;
             UserName = userName;
