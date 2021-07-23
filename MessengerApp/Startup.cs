@@ -6,6 +6,7 @@ using MessengerApp.DAL.Repository;
 using MessengerApp.DAL.Repository.Abstraction;
 using MessengerApp.Extensions;
 using MessengerApp.Filters;
+using MessengerApp.Hubs;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -60,6 +61,9 @@ namespace MessengerApp
                 .AddSingleton<IEmailService, EmailService>()
                 .AddLogging(builder => builder.AddFile(Configuration.GetLogFileName(), fileSizeLimitBytes: 100_000))
                 .AddControllers(options => options.Filters.Add<ErrorableResultFilterAttribute>());
+
+            services
+                .AddSignalR();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -77,6 +81,8 @@ namespace MessengerApp
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                
+                endpoints.MapHub<ChatHub>("/chat");
             });
         }
     }
