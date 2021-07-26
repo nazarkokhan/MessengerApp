@@ -14,9 +14,9 @@ namespace MessengerApp.Services
             _chatHub = chatHub;
         }
 
-        public async Task Do()
-        {
-            // _chatHub.Clients.
-        }
+        // public async Task Do()
+        // {
+        //     _chatHub.Clients.
+        // }
     }
 }

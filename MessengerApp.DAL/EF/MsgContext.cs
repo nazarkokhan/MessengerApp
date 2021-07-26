@@ -29,7 +29,7 @@ namespace MessengerApp.DAL.EF
             base.OnModelCreating(builder);
 
             builder.Entity<Contact>()
-                .HasKey(c => new {c.UserId, c.UserContactId});
+                .HasKey(c => c.Id);
 
             builder.Entity<Contact>()
                 .HasOne<User>(c => c.User)
