@@ -110,7 +110,7 @@ namespace MessengerApp.BLL.Services
             }
         }
 
-        public async Task<Result<Token>> GetAccessTokenAsync(
+        public async Task<Result<TokenDto>> GetAccessTokenAsync(
             LogInUserDto userInput)
         {
             try
@@ -118,49 +118,51 @@ namespace MessengerApp.BLL.Services
                 var user = await _userManager.FindByEmailAsync(userInput.Email);
 
                 if (user is null)
-                    return Result<Token>.CreateFailed(
+                    return Result<TokenDto>.CreateFailed(
                         UserResultConstants.UserNotFound,
                         new NullReferenceException()
                     );
 
                 if (!await _userManager.CheckPasswordAsync(user, userInput.Password))
-                    return Result<Token>.CreateFailed(UserResultConstants.InvalidUserNameOrPassword);
+                    return Result<TokenDto>.CreateFailed(UserResultConstants.InvalidUserNameOrPassword);
 
                 if (!user.EmailConfirmed)
-                    return Result<Token>.CreateFailed(UserResultConstants.UserEmailNotConfirmed);
+                    return Result<TokenDto>.CreateFailed(UserResultConstants.UserEmailNotConfirmed);
 
                 var userRole = await _userManager.GetRolesAsync(user);
 
                 if (userRole is null)
-                    return Result<Token>.CreateFailed(
+                    return Result<TokenDto>.CreateFailed(
                         UserResultConstants.UserDoesntHaveRole,
                         new NullReferenceException()
                     );
 
-                var timeNow = DateTime.Now;
+                var notBefore = DateTime.Now;
+
+                var expires = notBefore.Add(TimeSpan.FromMinutes(AuthOptions.Lifetime));
 
                 var jwt = new JwtSecurityToken(
                     issuer: AuthOptions.Issuer,
                     audience: AuthOptions.Audience,
-                    notBefore: timeNow,
+                    notBefore: notBefore,
                     claims: new List<Claim>
                     {
                         new(ClaimTypes.Email, user.Email),
                         new(ClaimTypes.NameIdentifier, user.Id.ToString()),
                         new(ClaimTypes.Role, userRole.FirstOrDefault()!)
                     },
-                    expires: timeNow.Add(TimeSpan.FromMinutes(AuthOptions.Lifetime)),
+                    expires: expires,
                     signingCredentials: new SigningCredentials(AuthOptions.SymmetricSecurityKey,
                         SecurityAlgorithms.HmacSha256)
                 );
 
                 var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
 
-                return Result<Token>.CreateSuccess(new Token(encodedJwt));
+                return Result<TokenDto>.CreateSuccess(new TokenDto(encodedJwt, default, default, default));
             }
             catch (Exception e)
             {
-                return Result<Token>.CreateFailed(CommonResultConstants.Unexpected, e);
+                return Result<TokenDto>.CreateFailed(CommonResultConstants.Unexpected, e);
             }
         }
 

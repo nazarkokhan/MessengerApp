@@ -267,7 +267,7 @@ namespace MessengerApp.BLL.Tests
 
             var actual = await _accountService.GetAccessTokenAsync(userInput);
 
-            var expected = Result<Token>.CreateSuccess(new Token(It.IsAny<string>()));
+            var expected = Result<TokenDto>.CreateSuccess(new TokenDto(It.IsAny<string>()));
 
             Assert.NotNull(actual);
             Assert.Null(actual.Exception);
@@ -287,7 +287,7 @@ namespace MessengerApp.BLL.Tests
 
             var actual = await _accountService.GetAccessTokenAsync(userInput);
 
-            var expected = Result<Token>.CreateFailed(
+            var expected = Result<TokenDto>.CreateFailed(
                 UserResultConstants.UserNotFound,
                 new NullReferenceException()
             );
@@ -322,7 +322,7 @@ namespace MessengerApp.BLL.Tests
 
             var actual = await _accountService.GetAccessTokenAsync(userInput);
 
-            var expected = Result<Token>.CreateFailed(UserResultConstants.InvalidUserNameOrPassword);
+            var expected = Result<TokenDto>.CreateFailed(UserResultConstants.InvalidUserNameOrPassword);
 
             Assert.NotNull(actual);
             Assert.Null(actual.Exception);
@@ -345,7 +345,7 @@ namespace MessengerApp.BLL.Tests
 
             var actual = await _accountService.GetAccessTokenAsync(userInput);
 
-            var expected = Result<Token>.CreateFailed(CommonResultConstants.Unexpected, new Exception());
+            var expected = Result<TokenDto>.CreateFailed(CommonResultConstants.Unexpected, new Exception());
 
             Assert.NotNull(actual);
             Assert.NotNull(actual.Exception);
