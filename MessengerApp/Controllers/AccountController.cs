@@ -45,7 +45,15 @@ namespace MessengerApp.Controllers
         public async Task<IActionResult> LogInAsync(
             LogInUserDto userDto
         ) =>
-            (await _accountService.GetAccessTokenAsync(userDto))
+            (await _accountService.GetAccessAndRefreshTokensAsync(userDto))
+            .ToActionResult();
+        
+        [AllowAnonymous]
+        [HttpPut("refresh-token")]
+        public async Task<IActionResult> RefreshToken(
+            RefreshTokenDto refreshTokenDto
+        ) =>
+            (await _accountService.RefreshAccessToken(refreshTokenDto))
             .ToActionResult();
 
         [HttpGet]

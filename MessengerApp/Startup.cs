@@ -55,6 +55,7 @@ namespace MessengerApp
                 .AddScoped<IMessageRepository, MessageRepository>()
                 .AddScoped<IAccountService, AccountService>()
                 .AddScoped<IAdminService, AdminService>()
+                .AddScoped<ITokenService, TokenService>()
                 .AddScoped<IContactService, ContactService>()
                 .AddScoped<IChatService, ChatService>()
                 .AddScoped<IMessageService, MessageService>()

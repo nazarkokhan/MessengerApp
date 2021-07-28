@@ -11,7 +11,9 @@ namespace MessengerApp.Core
 
         private const string Key = "mysupersecret_secretkey!123";
 
-        public const int Lifetime = 10080; //7 days
+        public const int TokenLifetime = 10; // 1 minute
+        
+        public const int RefreshTokenLifetime = 525_600; // 365 days
 
         public static SymmetricSecurityKey SymmetricSecurityKey =>
             new(Encoding.ASCII.GetBytes(Key));

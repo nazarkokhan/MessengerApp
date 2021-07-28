@@ -51,6 +51,11 @@
         /// Represents message when refresh token is not valid.
         /// </summary>
         public const string InvalidRefreshToken = "INVALID_REFRESH_TOKEN";
+        
+        /// <summary>
+        /// Represents message when refresh token is expired.
+        /// </summary>
+        public const string ExpiredRefreshToken = "EXPIRED_REFRESH_TOKEN";
 
         /// <summary>
         /// Represents message when user sent valid code for resetting, but it is already expired.

@@ -24,6 +24,7 @@ namespace MessengerApp.BLL.Tests
         private readonly Mock<IUserStore<User>> _userStoreMock = new();
         private readonly Mock<IUnitOfWork> _unitOfWorkMock = new();
         private readonly Mock<IEmailService> _emailServiceMock = new();
+        private readonly Mock<ITokenService> _tokenServiceMock = new();
 
         public AccountServiceTests()
         {
@@ -31,7 +32,7 @@ namespace MessengerApp.BLL.Tests
                 new Mock<UserManager<User>>(_userStoreMock.Object, null, null, null, null, null, null, null, null);
 
             _accountService =
-                new AccountService(_userManagerMock.Object, _emailServiceMock.Object, _unitOfWorkMock.Object);
+                new AccountService(_userManagerMock.Object, _emailServiceMock.Object, _unitOfWorkMock.Object, _tokenServiceMock.Object);
         }
 
 
@@ -265,9 +266,9 @@ namespace MessengerApp.BLL.Tests
                 .GetRolesAsync(userEntity)
             ).Returns(Task.FromResult(roles));
 
-            var actual = await _accountService.GetAccessTokenAsync(userInput);
+            var actual = await _accountService.GetAccessAndRefreshTokensAsync(userInput);
 
-            var expected = Result<TokenDto>.CreateSuccess(new TokenDto(It.IsAny<string>()));
+            var expected = Result<TokenDto>.CreateSuccess(new TokenDto(It.IsAny<string>(),It.IsAny<DateTime>(),It.IsAny<string>(),It.IsAny<DateTime>()));
 
             Assert.NotNull(actual);
             Assert.Null(actual.Exception);
@@ -285,7 +286,7 @@ namespace MessengerApp.BLL.Tests
         {
             var userInput = new LogInUserDto(logInEmail, logInPassword);
 
-            var actual = await _accountService.GetAccessTokenAsync(userInput);
+            var actual = await _accountService.GetAccessAndRefreshTokensAsync(userInput);
 
             var expected = Result<TokenDto>.CreateFailed(
                 UserResultConstants.UserNotFound,
@@ -320,7 +321,7 @@ namespace MessengerApp.BLL.Tests
                 .CheckPasswordAsync(It.IsAny<User>(), It.IsAny<string>())
             ).Returns(Task.FromResult(false));
 
-            var actual = await _accountService.GetAccessTokenAsync(userInput);
+            var actual = await _accountService.GetAccessAndRefreshTokensAsync(userInput);
 
             var expected = Result<TokenDto>.CreateFailed(UserResultConstants.InvalidUserNameOrPassword);
 
@@ -343,7 +344,7 @@ namespace MessengerApp.BLL.Tests
                 .FindByEmailAsync(userInput.Email)
             ).Throws(new Exception());
 
-            var actual = await _accountService.GetAccessTokenAsync(userInput);
+            var actual = await _accountService.GetAccessAndRefreshTokensAsync(userInput);
 
             var expected = Result<TokenDto>.CreateFailed(CommonResultConstants.Unexpected, new Exception());
 

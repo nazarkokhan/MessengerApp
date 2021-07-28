@@ -16,6 +16,7 @@ using MessengerApp.DAL.Repository.Abstraction;
 using MessengerApp.BLL.Services.Abstraction;
 using MessengerApp.Core.DTO;
 using MessengerApp.Core.DTO.User;
+using MessengerApp.Core.Extensions;
 using MessengerApp.DAL.Entities.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
@@ -30,11 +31,15 @@ namespace MessengerApp.BLL.Services
 
         private readonly IUnitOfWork _unitOfWork;
 
-        public AccountService(UserManager<User> userManager, IEmailService emailService, IUnitOfWork unitOfWork)
+        private readonly ITokenService _tokenService;
+
+        public AccountService(UserManager<User> userManager, IEmailService emailService, IUnitOfWork unitOfWork,
+            ITokenService tokenService)
         {
             _userManager = userManager;
             _emailService = emailService;
             _unitOfWork = unitOfWork;
+            _tokenService = tokenService;
         }
 
         public async Task<Result> CreateUserAndSendEmailTokenAsync(RegisterDto register)
@@ -110,7 +115,7 @@ namespace MessengerApp.BLL.Services
             }
         }
 
-        public async Task<Result<TokenDto>> GetAccessTokenAsync(
+        public async Task<Result<TokenDto>> GetAccessAndRefreshTokensAsync(
             LogInUserDto userInput)
         {
             try
@@ -137,32 +142,66 @@ namespace MessengerApp.BLL.Services
                         new NullReferenceException()
                     );
 
-                var notBefore = DateTime.Now;
+                var tempToken = _tokenService.GenerateTempToken(user).Data;
 
-                var expires = notBefore.Add(TimeSpan.FromMinutes(AuthOptions.Lifetime));
+                var refreshToken = _tokenService.GenerateRefreshToken(user).Data;
 
-                var jwt = new JwtSecurityToken(
-                    issuer: AuthOptions.Issuer,
-                    audience: AuthOptions.Audience,
-                    notBefore: notBefore,
-                    claims: new List<Claim>
-                    {
-                        new(ClaimTypes.Email, user.Email),
-                        new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                        new(ClaimTypes.Role, userRole.FirstOrDefault()!)
-                    },
-                    expires: expires,
-                    signingCredentials: new SigningCredentials(AuthOptions.SymmetricSecurityKey,
-                        SecurityAlgorithms.HmacSha256)
+                return Result<TokenDto>.CreateSuccess(
+                    new TokenDto(
+                        tempToken.Token,
+                        tempToken.ExpTime,
+                        refreshToken.Token,
+                        refreshToken.ExpTime
+                    )
                 );
-
-                var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
-
-                return Result<TokenDto>.CreateSuccess(new TokenDto(encodedJwt, default, default, default));
             }
             catch (Exception e)
             {
                 return Result<TokenDto>.CreateFailed(CommonResultConstants.Unexpected, e);
+            }
+        }
+
+        public async Task<Result<AccessTokenDto>> RefreshAccessToken(
+            RefreshTokenDto refreshTokenDto)
+        {
+            try
+            {
+                var claims = new JwtSecurityTokenHandler()
+                    .ValidateToken(refreshTokenDto.Token,
+                        new TokenValidationParameters
+                        {
+                            ValidateAudience = false,
+                            ValidateIssuer = false,
+                            ValidateIssuerSigningKey = true,
+                            ValidateLifetime = false,
+                            IssuerSigningKey = AuthOptions.SymmetricSecurityKey
+                        },
+                        out var securityToken
+                    );
+
+                if (securityToken is not JwtSecurityToken jwtSecurityToken ||
+                    !jwtSecurityToken.Header.Alg
+                        .Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase)
+                )
+                    return Result<AccessTokenDto>.CreateFailed(
+                        UserResultConstants.InvalidRefreshToken,
+                        new SecurityTokenException()
+                    );
+
+                var user = await _userManager.FindByIdAsync(claims.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
+                var tempToken = _tokenService.GenerateTempToken(user).Data;
+
+                return Result<AccessTokenDto>.CreateSuccess(
+                    new AccessTokenDto(
+                        tempToken.Token,
+                        tempToken.ExpTime
+                    )
+                );
+            }
+            catch (Exception e)
+            {
+                return Result<AccessTokenDto>.CreateFailed(CommonResultConstants.Unexpected, e);
             }
         }
 
@@ -190,7 +229,7 @@ namespace MessengerApp.BLL.Services
             int id, EditUserDto editUserDto
         ) =>
             _unitOfWork.Users.EditUserAsync(id, editUserDto);
-        
+
         public async Task<Result> SendEmailResetTokenAsync(
             int userId, ResetEmailDto resetEmailDto)
         {

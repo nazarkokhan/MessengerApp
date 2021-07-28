@@ -16,8 +16,11 @@ namespace MessengerApp.BLL.Services.Abstraction
         Task<Result<string>> ConfirmRegistrationWithTokenAsync(
             string token, string userId);
         
-        Task<Result<TokenDto>> GetAccessTokenAsync(
+        Task<Result<TokenDto>> GetAccessAndRefreshTokensAsync(
             LogInUserDto userInput);
+
+        Task<Result<AccessTokenDto>> RefreshAccessToken(
+            RefreshTokenDto refreshTokenDto);
 
         Task<Result<ProfileDto>> GetProfile(
             int userId);
