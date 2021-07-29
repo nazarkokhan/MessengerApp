@@ -11,7 +11,7 @@ namespace MessengerApp.Core
 
         private const string Key = "mysupersecret_secretkey!123";
 
-        public const int TokenLifetime = 10; // 1 minute
+        public const int TokenLifetime = 1; // 1 minute
         
         public const int RefreshTokenLifetime = 525_600; // 365 days
 

@@ -19,7 +19,7 @@ namespace MessengerApp.BLL.Services.Abstraction
         Task<Result<TokenDto>> GetAccessAndRefreshTokensAsync(
             LogInUserDto userInput);
 
-        Task<Result<AccessTokenDto>> RefreshAccessToken(
+        Task<Result<TokenDto>> RefreshAccessToken(
             RefreshTokenDto refreshTokenDto);
 
         Task<Result<ProfileDto>> GetProfile(

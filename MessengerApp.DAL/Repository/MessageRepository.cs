@@ -8,7 +8,6 @@ using MessengerApp.Core.ResultConstants;
 using MessengerApp.Core.ResultModel;
 using MessengerApp.Core.ResultModel.Generics;
 using MessengerApp.DAL.EF;
-using MessengerApp.DAL.Entities;
 using MessengerApp.DAL.Extensions;
 using MessengerApp.DAL.Repository.Abstraction;
 using Microsoft.EntityFrameworkCore;

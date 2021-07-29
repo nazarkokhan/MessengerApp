@@ -5,14 +5,11 @@ namespace MessengerApp.Core.DTO.Authorization
 {
     public class RefreshTokenDto
     {
-        public RefreshTokenDto(string token, DateTime expTime)
+        public RefreshTokenDto(string token)
         {
             Token = token;
-            ExpTime = expTime;
         }
 
         public string Token { get; }
-
-        public DateTime ExpTime { get; }
     }
 }

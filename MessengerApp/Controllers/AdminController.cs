@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using MessengerApp.BLL.Services.Abstraction;
 using MessengerApp.Core.DTO.Authorization;
-using MessengerApp.Core.DTO.User;
 using MessengerApp.Core.ResultConstants.AuthorizationConstants;
 using MessengerApp.Extensions;
 using Microsoft.AspNetCore.Mvc;

@@ -3,13 +3,10 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using MessengerApp.BLL.Services.Abstraction;
 using MessengerApp.Core;
 using MessengerApp.Core.DTO.Authorization;
 using MessengerApp.Core.ResultConstants;
-using MessengerApp.Core.ResultConstants.AuthorizationConstants;
-using MessengerApp.Core.ResultModel;
 using MessengerApp.Core.ResultModel.Generics;
 using MessengerApp.DAL.Entities.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -26,12 +23,12 @@ namespace MessengerApp.BLL.Services
             _userManager = userManager;
         }
 
-        public Result<AccessTokenDto> GenerateTempToken(
+        public Result<GenerateTokenDto> GenerateTempToken(
             User user)
         {
             try
             {
-                var notBefore = DateTime.Now;
+                var notBefore = DateTime.UtcNow;
 
                 var expires = notBefore.Add(TimeSpan.FromMinutes(AuthOptions.TokenLifetime));
 
@@ -43,7 +40,8 @@ namespace MessengerApp.BLL.Services
                     {
                         new(ClaimTypes.Email, user.Email),
                         new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                        new(ClaimTypes.Role, _userManager.GetRolesAsync(user).GetAwaiter().GetResult().FirstOrDefault()!)
+                        new(ClaimTypes.Role, _userManager.GetRolesAsync(user).GetAwaiter().GetResult()
+                            .FirstOrDefault()!)
                     },
                     expires: expires,
                     signingCredentials: new SigningCredentials(AuthOptions.SymmetricSecurityKey,
@@ -52,20 +50,20 @@ namespace MessengerApp.BLL.Services
 
                 var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
 
-                return Result<AccessTokenDto>.CreateSuccess(new AccessTokenDto(encodedJwt, expires));
+                return Result<GenerateTokenDto>.CreateSuccess(new GenerateTokenDto(encodedJwt, expires));
             }
             catch (Exception e)
             {
-                return Result<AccessTokenDto>.CreateFailed(CommonResultConstants.Unexpected, e);
+                return Result<GenerateTokenDto>.CreateFailed(CommonResultConstants.Unexpected, e);
             }
         }
 
-        public Result<RefreshTokenDto> GenerateRefreshToken(
+        public Result<GenerateTokenDto> GenerateRefreshToken(
             User user)
         {
             try
             {
-                var notBefore = DateTime.Now;
+                var notBefore = DateTime.UtcNow;
 
                 var expires = notBefore.Add(TimeSpan.FromMinutes(AuthOptions.RefreshTokenLifetime));
 
@@ -75,9 +73,8 @@ namespace MessengerApp.BLL.Services
                     notBefore: notBefore,
                     claims: new List<Claim>
                     {
-                        new(ClaimTypes.Email, user.Email),
-                        new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                        new(ClaimTypes.Role, _userManager.GetRolesAsync(user).GetAwaiter().GetResult().FirstOrDefault()!)
+                        new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                        new(JwtRegisteredClaimNames.Jti, AuthOptions.SymmetricSecurityKey.ToString())
                     },
                     expires: expires,
                     signingCredentials: new SigningCredentials(AuthOptions.SymmetricSecurityKey,
@@ -86,11 +83,11 @@ namespace MessengerApp.BLL.Services
 
                 var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
 
-                return Result<RefreshTokenDto>.CreateSuccess(new RefreshTokenDto(encodedJwt, expires));
+                return Result<GenerateTokenDto>.CreateSuccess(new GenerateTokenDto(encodedJwt, expires));
             }
             catch (Exception e)
             {
-                return Result<RefreshTokenDto>.CreateFailed(CommonResultConstants.Unexpected, e);
+                return Result<GenerateTokenDto>.CreateFailed(CommonResultConstants.Unexpected, e);
             }
         }
     }

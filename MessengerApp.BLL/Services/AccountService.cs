@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
-using MessengerApp.Core;
 using MessengerApp.Core.DTO.Authorization;
 using MessengerApp.Core.DTO.Authorization.Reset;
 using MessengerApp.Core.ResultConstants;
@@ -14,9 +11,9 @@ using MessengerApp.Core.ResultModel;
 using MessengerApp.Core.ResultModel.Generics;
 using MessengerApp.DAL.Repository.Abstraction;
 using MessengerApp.BLL.Services.Abstraction;
+using MessengerApp.Core;
 using MessengerApp.Core.DTO;
 using MessengerApp.Core.DTO.User;
-using MessengerApp.Core.Extensions;
 using MessengerApp.DAL.Entities.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
@@ -32,6 +29,7 @@ namespace MessengerApp.BLL.Services
         private readonly IUnitOfWork _unitOfWork;
 
         private readonly ITokenService _tokenService;
+
 
         public AccountService(UserManager<User> userManager, IEmailService emailService, IUnitOfWork unitOfWork,
             ITokenService tokenService)
@@ -161,7 +159,7 @@ namespace MessengerApp.BLL.Services
             }
         }
 
-        public async Task<Result<AccessTokenDto>> RefreshAccessToken(
+        public async Task<Result<TokenDto>> RefreshAccessToken(
             RefreshTokenDto refreshTokenDto)
         {
             try
@@ -170,38 +168,48 @@ namespace MessengerApp.BLL.Services
                     .ValidateToken(refreshTokenDto.Token,
                         new TokenValidationParameters
                         {
-                            ValidateAudience = false,
                             ValidateIssuer = false,
+                            ValidateAudience = false,
+                            ValidateLifetime = true,
                             ValidateIssuerSigningKey = true,
-                            ValidateLifetime = false,
-                            IssuerSigningKey = AuthOptions.SymmetricSecurityKey
+                            IssuerSigningKey = AuthOptions.SymmetricSecurityKey,
                         },
                         out var securityToken
                     );
-
+                
                 if (securityToken is not JwtSecurityToken jwtSecurityToken ||
                     !jwtSecurityToken.Header.Alg
                         .Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase)
                 )
-                    return Result<AccessTokenDto>.CreateFailed(
+                    return Result<TokenDto>.CreateFailed(
                         UserResultConstants.InvalidRefreshToken,
                         new SecurityTokenException()
                     );
-
+                
                 var user = await _userManager.FindByIdAsync(claims.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-
+                
+                if(user is null)
+                    return Result<TokenDto>.CreateFailed(UserResultConstants.UserNotFound, new NullReferenceException());
+                
                 var tempToken = _tokenService.GenerateTempToken(user).Data;
 
-                return Result<AccessTokenDto>.CreateSuccess(
-                    new AccessTokenDto(
+                var refreshExpTime = DateTime.TryParse(claims.FindFirst(ClaimTypes.Expiration)!.Value!, out var x);
+
+                if(!refreshExpTime)
+                    x = DateTime.Today;
+                
+                return Result<TokenDto>.CreateSuccess(
+                    new TokenDto(
                         tempToken.Token,
-                        tempToken.ExpTime
+                        tempToken.ExpTime, 
+                        refreshTokenDto.Token,
+                        x
                     )
                 );
             }
             catch (Exception e)
             {
-                return Result<AccessTokenDto>.CreateFailed(CommonResultConstants.Unexpected, e);
+                return Result<TokenDto>.CreateFailed(CommonResultConstants.Unexpected, e);
             }
         }
 

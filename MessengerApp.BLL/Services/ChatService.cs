@@ -3,7 +3,6 @@ using MessengerApp.BLL.Services.Abstraction;
 using MessengerApp.Core.DTO;
 using MessengerApp.Core.DTO.Chat;
 using MessengerApp.Core.DTO.Message;
-using MessengerApp.Core.ResultConstants;
 using MessengerApp.Core.ResultModel;
 using MessengerApp.Core.ResultModel.Generics;
 using MessengerApp.DAL.Repository.Abstraction;

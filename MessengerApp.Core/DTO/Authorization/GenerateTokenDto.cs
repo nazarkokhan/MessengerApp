@@ -3,9 +3,9 @@
 
 namespace MessengerApp.Core.DTO.Authorization
 {
-    public class AccessTokenDto
+    public class GenerateTokenDto
     {
-        public AccessTokenDto(string token, DateTime expTime)
+        public GenerateTokenDto(string token, DateTime expTime)
         {
             Token = token;
             ExpTime = expTime;

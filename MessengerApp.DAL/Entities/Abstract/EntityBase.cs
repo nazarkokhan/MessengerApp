@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace MessengerApp.DAL.Entities.Abstract
+﻿namespace MessengerApp.DAL.Entities.Abstract
 {
     public abstract class EntityBase : IEntity<int>
     {

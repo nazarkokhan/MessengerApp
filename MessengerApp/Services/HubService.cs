@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using MessengerApp.Hubs;
+﻿using MessengerApp.Hubs;
 using MessengerApp.Services.Abstraction;
 using Microsoft.AspNetCore.SignalR;
 
