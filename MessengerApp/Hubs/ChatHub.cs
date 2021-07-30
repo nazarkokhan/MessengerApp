@@ -22,7 +22,7 @@ namespace MessengerApp.Hubs
 
             var messageDto = await _messageService.CreateMessageAsync(userId, 1, new CreateMessageDto(message));
 
-            await Clients.All.SendAsync("Send", messageDto);
+            await Clients.All.SendAsync("Send", messageDto.Data);
         }
     }
 }

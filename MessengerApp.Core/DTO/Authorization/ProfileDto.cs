@@ -2,14 +2,20 @@
 {
     public class ProfileDto
     {
-        public ProfileDto(int id, string email)
+        public ProfileDto(int id, string email, string userName, string? about)
         {
             Id = id;
             Email = email;
+            UserName = userName;
+            About = about;
         }
 
         public int Id { get; }
 
         public string Email { get; }
+
+        public string UserName { get; }
+
+        public string About { get; }
     }
 }

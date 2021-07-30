@@ -1,5 +1,7 @@
-﻿using MessengerApp.Core;
+﻿using System;
+using MessengerApp.Core;
 using MessengerApp.Core.ResultConstants.AuthorizationConstants;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -32,9 +34,17 @@ namespace MessengerApp.Extensions
 
                 IssuerSigningKey = AuthOptions.SymmetricSecurityKey,
                 ValidateIssuerSigningKey = true,
+                
+                ClockSkew = TimeSpan.Zero
             };
         }
-
+        
+        public static void AuthenticationOptions(this AuthenticationOptions options)
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        }
+        
         public static string GetLogFileName(this IConfiguration configuration) 
             => configuration.GetSection("FileLogging")["FileName"];
     }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
@@ -15,6 +16,7 @@ using MessengerApp.Core;
 using MessengerApp.Core.DTO;
 using MessengerApp.Core.DTO.User;
 using MessengerApp.DAL.Entities.Authorization;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 
@@ -176,34 +178,34 @@ namespace MessengerApp.BLL.Services
                         },
                         out var securityToken
                     );
-                
+
                 if (securityToken is not JwtSecurityToken jwtSecurityToken ||
                     !jwtSecurityToken.Header.Alg
-                        .Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase)
+                        .Equals(SecurityAlgorithms.HmacSha512, StringComparison.InvariantCultureIgnoreCase)
                 )
                     return Result<TokenDto>.CreateFailed(
                         UserResultConstants.InvalidRefreshToken,
                         new SecurityTokenException()
                     );
-                
+
                 var user = await _userManager.FindByIdAsync(claims.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-                
-                if(user is null)
-                    return Result<TokenDto>.CreateFailed(UserResultConstants.UserNotFound, new NullReferenceException());
-                
+
+                if (user is null)
+                    return Result<TokenDto>.CreateFailed(UserResultConstants.UserNotFound,
+                        new NullReferenceException());
+
                 var tempToken = _tokenService.GenerateTempToken(user).Data;
 
-                var refreshExpTime = DateTime.TryParse(claims.FindFirst(ClaimTypes.Expiration)!.Value!, out var x);
-
-                if(!refreshExpTime)
-                    x = DateTime.Today;
+                var validTo = DateTime.UnixEpoch.AddSeconds(
+                    double.Parse(jwtSecurityToken.Claims.FirstOrDefault(c => c.Type == "exp")!.Value!)
+                );
                 
                 return Result<TokenDto>.CreateSuccess(
                     new TokenDto(
                         tempToken.Token,
-                        tempToken.ExpTime, 
+                        tempToken.ExpTime,
                         refreshTokenDto.Token,
-                        x
+                        validTo
                     )
                 );
             }
@@ -223,7 +225,9 @@ namespace MessengerApp.BLL.Services
                 return Result<ProfileDto>.CreateSuccess(
                     new ProfileDto(
                         userEntity.Id,
-                        userEntity.Email
+                        userEntity.Email,
+                        userEntity.UserName,
+                        userEntity.About
                     )
                 );
             }

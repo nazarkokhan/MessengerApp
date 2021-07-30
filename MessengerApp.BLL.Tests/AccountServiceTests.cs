@@ -355,12 +355,12 @@ namespace MessengerApp.BLL.Tests
         }
 
         [Theory]
-        [InlineData(1, "user@gmail.com")]
-        [InlineData(2, "user1@gmail.com")]
-        [InlineData(3, "user2@gmail.com")]
-        public async Task GetProfile_IdFromClaims_SuccessReturned(int id, string email)
+        [InlineData(1, "user@gmail.com", "user")]
+        [InlineData(2, "user1@gmail.com", "user1")]
+        [InlineData(3, "user2@gmail.com", "user2")]
+        public async Task GetProfile_IdFromClaims_SuccessReturned(int id, string email, string userName)
         {
-            var expected = new ProfileDto(id, email);
+            var expected = new ProfileDto(id, email, userName, null);
 
             _userManagerMock
                 .Setup(userManager => userManager

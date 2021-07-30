@@ -40,8 +40,8 @@ namespace MessengerApp.BLL.Services
                     {
                         new(ClaimTypes.Email, user.Email),
                         new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                        new(ClaimTypes.Role, _userManager.GetRolesAsync(user).GetAwaiter().GetResult()
-                            .FirstOrDefault()!)
+                        new(ClaimTypes.Role, 
+                            _userManager.GetRolesAsync(user).GetAwaiter().GetResult().FirstOrDefault()!)
                     },
                     expires: expires,
                     signingCredentials: new SigningCredentials(AuthOptions.SymmetricSecurityKey,
@@ -78,7 +78,7 @@ namespace MessengerApp.BLL.Services
                     },
                     expires: expires,
                     signingCredentials: new SigningCredentials(AuthOptions.SymmetricSecurityKey,
-                        SecurityAlgorithms.HmacSha256)
+                        SecurityAlgorithms.HmacSha512)
                 );
 
                 var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);

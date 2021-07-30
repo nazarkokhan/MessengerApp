@@ -7,6 +7,7 @@ using MessengerApp.DAL.Repository.Abstraction;
 using MessengerApp.Extensions;
 using MessengerApp.Filters;
 using MessengerApp.Hubs;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -30,7 +31,7 @@ namespace MessengerApp
         public void ConfigureServices(IServiceCollection services)
         {
             services
-                .AddAuthentication()
+                .AddAuthentication(options => options.AuthenticationOptions())
                 .AddJwtBearer(options => options.JwtBearerOptions());
 
             services
@@ -69,7 +70,7 @@ namespace MessengerApp
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment()) 
+            if (env.IsDevelopment())
                 app.UseDeveloperExceptionPage();
 
             app.UseHttpsRedirection();
@@ -82,7 +83,7 @@ namespace MessengerApp
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                
+
                 endpoints.MapHub<ChatHub>("/chat");
             });
         }
